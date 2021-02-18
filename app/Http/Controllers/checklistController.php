@@ -46,7 +46,9 @@ class checklistController extends Controller
                      "version"=>$newCklist->version,
                      "data"=>isset($newCklist->data)?$newCklist->data:[],
                      "severity"=>isset($newCklist->severity)?$newCklist->severity:[],
-                     "category"=>isset($newCklist->category)?$newCklist->category:[]];
+                     "category"=>isset($newCklist->category)?$newCklist->category:[],
+                     "passRules"=>isset($newCklist->passRules)?$newCklist->passRules:[],
+                     "reportChart"=>isset($newCklist->reportChart)?$newCklist->reportChart:[]];
             }
             
             // $key=array_search($request->id, array_column($data, 'id'));

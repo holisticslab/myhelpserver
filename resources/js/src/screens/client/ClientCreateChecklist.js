@@ -43,6 +43,8 @@ const history = useHistory();
   // const [language, setLanguage] = React.useState("ms");
   const [categories, setCategories] = React.useState([]);
   const [severities, setSeverities] = React.useState([]);
+  const [passRules, setPassRules] = React.useState([]);
+  const [reportChart, setReportChart] = React.useState([]);
   const [cklistData, setCklistData] = React.useState([]);
   const [activeIndex, setActiveIndex] = React.useState(-1);
   const [savedCklist, setSavedCklist] = React.useState({});
@@ -62,14 +64,17 @@ const history = useHistory();
       if (activeDraft.version) setVersion(activeDraft.version);
       // if (activeDraft.cklistLang) setLanguage(activeDraft.cklistLang);
       if (activeDraft.severity) setSeverities(activeDraft.severity);
+      if (activeDraft.passRules) setPassRules(activeDraft.passRules);
+      if (activeDraft.reportChart) setPassRules(activeDraft.reportChart);
       if (activeDraft.category) setCategories(activeDraft.category);
       if (activeDraft.data) setCklistData(activeDraft.data);
+      
+      
       // ();
       // ();
       // ();
     }
     else if(index){
-      console.log(JSON.stringify(schmlist[index]));
       if(schmlist[index]){
         setSavedCklist(schmlist[index]);
         if (schmlist[index].name) setname(schmlist[index].name);
@@ -78,6 +83,9 @@ const history = useHistory();
         if (schmlist[index].severity) setSeverities(schmlist[index].severity);
         if (schmlist[index].category) setCategories(schmlist[index].category);
         if (schmlist[index].data) setCklistData(schmlist[index].data);
+        if (schmlist[index].passRules) setPassRules(schmlist[index].passRules);
+        if (schmlist[index].reportChart) setPassRules(schmlist[index].reportChart);
+        
 
         setID(index);
       }
@@ -141,6 +149,34 @@ const history = useHistory();
     setSavedCklist(cklistDraft);
     if(index=="draft")localStorage.setItem(id+"_cklistDraft", JSON.stringify(cklistDraft));
   }
+
+  const updateDraftPassRules=(x)=>{
+    let cklistDraft= JSON.stringify(savedCklist);
+    if(cklistDraft){
+      cklistDraft = JSON.parse(cklistDraft);
+      cklistDraft.passRules=x;
+    }
+    else{
+      cklistDraft={passRules:x};
+    }
+    setSavedCklist(cklistDraft);
+    if(index=="draft")localStorage.setItem(id+"_cklistDraft", JSON.stringify(cklistDraft));
+  }
+
+  const updateDraftReportChart=(x)=>{
+    let cklistDraft= JSON.stringify(savedCklist);
+    if(cklistDraft){
+      cklistDraft = JSON.parse(cklistDraft);
+      cklistDraft.reportChart=x;
+    }
+    else{
+      cklistDraft={reportChart:x};
+    }
+    setSavedCklist(cklistDraft);
+    if(index=="draft")localStorage.setItem(id+"_cklistDraft", JSON.stringify(cklistDraft));
+  }
+
+  
 
   const updateDraftCategory=(x)=>{
     let cklistDraft= JSON.stringify(savedCklist);
@@ -222,11 +258,13 @@ const history = useHistory();
                 })]
                     },
                   {  label: "Severity",  name: "severity", type: "ddl", required: true,value:x.severity,
-                     options:severities.map((x,i)=>{
-                     return{ key: i,
-                      text: x.name,
-                      value: x.id}
-                    })
+                     options:[{ key: -1,
+                      text: "",
+                      value: ""},...severities.map((x,i)=>{
+                        return{ key: i,
+                         text: x.name,
+                         value: x.id}
+                       })]
                   },
                   {  label: "Auto Failed ?", name: "autofailed",  type: "ddl", value:x.autofailed,
                   options:[{ key:0,
@@ -441,7 +479,150 @@ const history = useHistory();
 
   }
 
+  const RenderRules = props =>{
+    const data = props.data;
+    const tableItem = data.map((x, i) =>
+    <DraggableTableRow  key={x.id} i={i} data={severities} onDrop={a=>{
+      setPassRules(a);
+      updateDraftPassRules(a);}}>
+        <Table.Cell>{x.name}</Table.Cell>
+        <Table.Cell>{severities.find(z => z.id == x.variable)?severities.find(z => z.id == x.variable).name:x.variable}</Table.Cell>
+        <Table.Cell>{x.condition}</Table.Cell>
+        <Table.Cell>{x.value}</Table.Cell>
 
+        <Table.Cell>
+          <PromptModal onSave={(x) => {
+            let a = [...passRules];
+            a[i] = x;
+            setPassRules(a);
+            updateDraftPassRules(a);
+          }}
+            title="Edit Severity"
+            items={[
+              { value: x.id, type: "hidden", name: "id" },
+              { value: x.name, label: "Name", name: "name", required: true },
+              { value: x.variable, label: "Variable",  name: "variable", type: "ddl", required: true,
+               options:[{ key: -1,
+                text: "Mark",
+                value: "MARK"},...severities.map((x,i)=>{
+                  return{ key: i,
+                   text: `NCR: ${x.name}`,
+                   value: x.id}
+                 })]
+            },{ value: x.condition, label: "Condition",  name: "condition", type: "ddl", required: true,
+                  options:[
+                  { key: 0,text: "More Than >",value: ">"},
+                  { key: 1,text: "Less Than <",value: "<"}
+                ]
+              },
+              {value: x.value, label: "value", type: "number", name: "value", required: true }
+            ]}
+            buttonProps={{ size: "large", name: 'pencil', color: "teal" }}
+          />
+          <Icon onClick={() => {
+             let a = [...passRules];
+             a[i] = x;
+             a.splice(i, 1);
+             setPassRules(a);
+             updateDraftPassRules(a);
+          }} size="large"
+                name="trash"
+                color="red" link />
+        </Table.Cell>
+        </DraggableTableRow>
+    );
+    return <Table singleLine>
+      <Table.Header>
+        <Table.Row>
+          <Table.HeaderCell>Name</Table.HeaderCell>
+          <Table.HeaderCell>Variable</Table.HeaderCell>
+          <Table.HeaderCell>Condition</Table.HeaderCell>
+          <Table.HeaderCell>Value</Table.HeaderCell>
+          <Table.HeaderCell>Action</Table.HeaderCell>
+        </Table.Row>
+      </Table.Header>
+
+      <Table.Body>
+        {tableItem}
+      </Table.Body>
+    </Table>
+
+  }
+
+  const RenderReportChart=props=>{
+    const data = props.data;
+    const tableItem = data.map((x, i) =>
+    <DraggableTableRow  key={i} i={i} data={severities} onDrop={a=>{
+      setReportChart(a);
+      updateDraftReportChart(a);}}>
+        <Table.Cell>{x.name}</Table.Cell>
+        <Table.Cell>
+       <List as='ol'>
+            {
+              x.grp.map((y, idx) =>
+                <List.Item as='li' key={idx}>
+                  {y}
+                  </List.Item>
+              )
+            }
+          </List>
+        </Table.Cell>
+        <Table.Cell>
+          <PromptModal onSave={(x) => {
+            let a = [...passRules];
+            a[i] = x;
+            setPassRules(a);
+            updateDraftPassRules(a);
+          }}
+            title="Edit Severity"
+            items={[
+              { value: x.id, type: "hidden", name: "id" },
+              { value: x.name, label: "Name", name: "name", required: true },
+              { value: x.variable, label: "Variable",  name: "variable", type: "ddl", required: true,
+               options:[{ key: -1,
+                text: "Mark",
+                value: "MARK"},...severities.map((x,i)=>{
+                  return{ key: i,
+                   text: `NCR: ${x.name}`,
+                   value: x.id}
+                 })]
+            },{ value: x.condition, label: "Condition",  name: "condition", type: "ddl", required: true,
+                  options:[
+                  { key: 0,text: "More Than >",value: ">"},
+                  { key: 1,text: "Less Than <",value: "<"}
+                ]
+              },
+              {value: x.value, label: "value", type: "number", name: "value", required: true }
+            ]}
+            buttonProps={{ size: "large", name: 'pencil', color: "teal" }}
+          />
+          <Icon onClick={() => {
+             let a = [...passRules];
+             a[i] = x;
+             a.splice(i, 1);
+             setPassRules(a);
+             updateDraftPassRules(a);
+          }} size="large"
+                name="trash"
+                color="red" link />
+        </Table.Cell>
+        </DraggableTableRow>
+    );
+    return <Table singleLine>
+      <Table.Header>
+        <Table.Row>
+          <Table.HeaderCell>Name</Table.HeaderCell>
+          <Table.HeaderCell>Section Group</Table.HeaderCell>
+          <Table.HeaderCell>Action</Table.HeaderCell>
+        </Table.Row>
+      </Table.Header>
+
+      <Table.Body>
+        {tableItem}
+      </Table.Body>
+    </Table>
+
+  }
   const panes = [
     {
       menuItem: 'Home',
@@ -503,6 +684,74 @@ const history = useHistory();
           />
           {cklistData && <RenderChecklist data={cklistData} />}
         </div>,
+    },
+    {
+      menuItem: 'Report',
+      render: () =>
+        <Segment.Group>
+          <Segment color='green'>
+
+            <HeaderAction
+              buttonRight={
+                <PromptModal onSave={(x) => {
+                  setPassRules([...passRules, x]);
+                  updateDraftPassRules([...passRules, x]);
+                }}
+                  title="Add Rule"
+                  items={[
+                    { value: "", type: "hidden", name: "id", createID: true, },
+                    { value: "", label: "Name", name: "name", required: true },
+                    {  label: "Variable",  name: "variable", type: "ddl", required: true,
+                     options:[{ key: -1,
+                      text: "Mark",
+                      value: "MARK"},...severities.map((x,i)=>{
+                        return{ key: i,
+                         text: `NCR: ${x.name}`,
+                         value: x.id}
+                       })]
+                  },{  label: "Condition",  name: "condition", type: "ddl", required: true,
+                        options:[
+                        { key: 0,text: "More Than >",value: ">"},
+                        { key: 1,text: "Less Than <",value: "<"}
+                      ]
+                    },
+                    { value: "", label: "value", type: "number", name: "value", required: true }
+                  ]}
+                  buttonProps={{ size: "small", name: 'plus', color: "teal" }}
+                />
+              }
+            >Pass Rules</HeaderAction>
+            {severities.length>0 && <RenderRules data={passRules} />}
+          </Segment>
+          <Segment color='green'>
+            <HeaderAction onClick={() => { }} size="small" name='plus' color="teal"
+              buttonRight={
+                <PromptModal onSave={(x) => {
+                  setReportChart([...reportChart, x]);
+                  updateDraftReportChart([...reportChart, x]);
+                }}
+                  title="Custom Chart"
+                  items={[
+                    { value: "", label: "Chart Name", name: "name", required: true },
+                    {  label: "Section Group",  name: "grp", type: "ddl", required: true,multiple:true,
+                    search:true,
+                     options:cklistData.map((x,i)=>{
+                        return{ key: i,
+                         text: x.section,
+                         value: x.section}
+                       })
+                  }
+                  ]}
+                  buttonProps={{ size: "small", name: 'plus', color: "teal" }}
+                />
+              }
+              
+            >Report Chart</HeaderAction>
+            
+            {categories.length>0 && <RenderReportChart data={reportChart} />}
+          </Segment>
+        </Segment.Group>
+      ,
     }
   ]
   return <React.Fragment>
@@ -533,7 +782,6 @@ const history = useHistory();
          let newid=n.toString(36)
          if(!savedCklist.name) savedCklist.name=name;
          if(!savedCklist.version) savedCklist.version=version;
-         
         saveChecklist({id:objid?objid:newid,data:savedCklist,cmpnyid:id}).then(k=>{
           history.goBack();
           clearDraft();

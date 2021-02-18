@@ -78,7 +78,7 @@ export default function App(props) {
 
     React.useEffect(() => {
         // Fetch the token from storage then navigate to our appropriate place
-        
+        console.log(window.location.hostname);
         let progressbar
         const getCustomScreen=async()=>{
             
