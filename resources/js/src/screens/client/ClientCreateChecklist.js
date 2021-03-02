@@ -65,7 +65,7 @@ const history = useHistory();
       // if (activeDraft.cklistLang) setLanguage(activeDraft.cklistLang);
       if (activeDraft.severity) setSeverities(activeDraft.severity);
       if (activeDraft.passRules) setPassRules(activeDraft.passRules);
-      if (activeDraft.reportChart) setPassRules(activeDraft.reportChart);
+      if (activeDraft.reportChart) setReportChart(activeDraft.reportChart);
       if (activeDraft.category) setCategories(activeDraft.category);
       if (activeDraft.data) setCklistData(activeDraft.data);
       
@@ -84,7 +84,7 @@ const history = useHistory();
         if (schmlist[index].category) setCategories(schmlist[index].category);
         if (schmlist[index].data) setCklistData(schmlist[index].data);
         if (schmlist[index].passRules) setPassRules(schmlist[index].passRules);
-        if (schmlist[index].reportChart) setPassRules(schmlist[index].reportChart);
+        if (schmlist[index].reportChart) setReportChart(schmlist[index].reportChart);
         
 
         setID(index);
@@ -576,23 +576,15 @@ const history = useHistory();
           }}
             title="Edit Severity"
             items={[
-              { value: x.id, type: "hidden", name: "id" },
-              { value: x.name, label: "Name", name: "name", required: true },
-              { value: x.variable, label: "Variable",  name: "variable", type: "ddl", required: true,
-               options:[{ key: -1,
-                text: "Mark",
-                value: "MARK"},...severities.map((x,i)=>{
+              { value: x.name, label: "Chart Name", name: "name", required: true },
+              { value: x.grp, grp: "Section Group",  name: "grp", type: "ddl", required: true,multiple:true,
+              search:true,
+               options:cklistData.map((x,i)=>{
                   return{ key: i,
-                   text: `NCR: ${x.name}`,
-                   value: x.id}
-                 })]
-            },{ value: x.condition, label: "Condition",  name: "condition", type: "ddl", required: true,
-                  options:[
-                  { key: 0,text: "More Than >",value: ">"},
-                  { key: 1,text: "Less Than <",value: "<"}
-                ]
-              },
-              {value: x.value, label: "value", type: "number", name: "value", required: true }
+                   text: x.section,
+                   value: x.section}
+                 })
+            }
             ]}
             buttonProps={{ size: "large", name: 'pencil', color: "teal" }}
           />
@@ -721,7 +713,7 @@ const history = useHistory();
                 />
               }
             >Pass Rules</HeaderAction>
-            {severities.length>0 && <RenderRules data={passRules} />}
+            {passRules.length>0 && <RenderRules data={passRules} />}
           </Segment>
           <Segment color='green'>
             <HeaderAction onClick={() => { }} size="small" name='plus' color="teal"
@@ -748,7 +740,7 @@ const history = useHistory();
               
             >Report Chart</HeaderAction>
             
-            {categories.length>0 && <RenderReportChart data={reportChart} />}
+            {reportChart.length>0 && <RenderReportChart data={reportChart} />}
           </Segment>
         </Segment.Group>
       ,
