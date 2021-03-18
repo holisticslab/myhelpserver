@@ -14,6 +14,15 @@ use Illuminate\Support\Facades\Auth;
 |
 */
 
+Route::get('/clear-cache', function() {
+    Artisan::call('cache:clear');
+    return "Cache is cleared";
+});
+
+Route::get('/config-cache', function() {
+    Artisan::call('config:cache');
+    return "create cache";
+});
 
 Route::post('/login', "authController@authenticate")->middleware('throttle:login');
 

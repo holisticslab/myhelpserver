@@ -12,8 +12,8 @@ import {
   Button,
   Table,
   Tab,
-  Modal,Divider,
-  Form,Dropdown,Label, Dimmer, Loader,
+  Modal,Divider,Message,
+  Form,Dropdown,Label, Dimmer, Loader,Progress
 } from 'semantic-ui-react';
 
 import * as moment from 'moment';
@@ -24,10 +24,14 @@ import {ClientContext} from './client';
 import {deleteUser, postUser} from '../subscription/subscription';
 
 import {getRoles } from '../../components/function';
+import  {passwordStrength}  from 'check-password-strength';
+const strengthLabel=[{color:'red',percent:25, label:'Very Weak'},{color:'orange',percent:50,label:'weak'},{color:'yellow',percent:75,label:'Acceptable'},{color:'green',percent:100,label:'Strong'}]
 
 const renderHTML = (rawHTML) => React.createElement("div", { dangerouslySetInnerHTML: { __html: rawHTML } });
 
 const ClientUser = ({data,onDataChange,id,accesslvl}) => {
+
+  // const strengthCheck=  /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[^a-zA-Z0-9])(?!.*\s).{6,16}$/;
   const {users} = useContext(ClientContext);
 //   const {subcr,cmpny} = useContext(SubscriptionContext);
   const [modalOpen, setModalOpen] = React.useState(false);
@@ -37,6 +41,8 @@ const ClientUser = ({data,onDataChange,id,accesslvl}) => {
   const [username, setusername] = React.useState("");
   const [password, setpassword] = React.useState("");
   const [password2, setpassword2] = React.useState("");
+  const [pwdLevel, setPwdLevel] = React.useState(null);
+  const [errorMsg, setErrorMsg] = React.useState("");
   const [roles, setRoles] = React.useState([]);
   const [userrole, setuserrole] = React.useState("");
   const [userFilter, setuserFilter] = React.useState(users);
@@ -66,6 +72,40 @@ const ClientUser = ({data,onDataChange,id,accesslvl}) => {
   let { path, url } = useRouteMatch();
 
   
+  const checkPassword = (data)=>{
+    let option=[
+      {
+        id: 0,
+        value: "Too weak",
+        minDiversity: 0,
+        minLength: 0,
+        percent:25
+      },
+      {
+        id: 1,
+        value: "Weak",
+        minDiversity: 2,
+        minLength: 6,
+        percent:50
+      },
+      {
+        id: 2,
+        value: "Medium",
+        minDiversity: 3,
+        minLength: 6,
+        percent:75
+      },
+      {
+        id: 3,
+        value: "Strong",
+        minDiversity: 4,
+        minLength: 8,
+        percent:100
+      }
+    ]
+    setPwdLevel(passwordStrength(data,option).id);
+  }
+
   const resetForm=()=>{
     setname("");
     setusername("");
@@ -74,6 +114,7 @@ const ClientUser = ({data,onDataChange,id,accesslvl}) => {
     setuserid(0);
 
   }
+
 
   const editForm=({name,username,id,roleFK})=>{
     console.log(roleFK)
@@ -88,13 +129,21 @@ const ClientUser = ({data,onDataChange,id,accesslvl}) => {
 
   
   const submitForm=()=>{
-    
     const data={id:userid,name,username,cmpnyid:id,password,role:userrole};
 
+    if(password!=password2 ){
+      setErrorMsg("Password not match");
+    }
+    else if(pwdLevel !==null && pwdLevel<2){
+      setErrorMsg("Password must be alphanumeric and contain atleast 1 symbol");
+    }
+    else{
     postUser(data).then(x=>{
       onDataChange(x,"edit");
     }).catch(e=>console.log(e))
     resetForm();
+    setModalOpen(false);}
+
   }
 
   const deleteUserForm=(pk)=>{
@@ -176,21 +225,23 @@ const ClientUser = ({data,onDataChange,id,accesslvl}) => {
   </Dimmer>}
 
   <Modal style={{position:'relative',height:'auto'}}
-              onClose={() =>{ setModalOpen(false),resetForm()}}
+              onClose={() =>{ setModalOpen(false),resetForm(),setPwdLevel(null)}}
               // onOpen={() => setOpen(true)}
               open={modalOpen}
           >
             <Header icon='archive' content='User Management' />
             <Modal.Content>
-            <Form>
+            <Form id="userEdit" onSubmit={()=>submitForm()}>
             <Form.Group widths='equal'>
             <Form.Input
+              required
               fluid
               label='Name'
               onChange={e=>setname(e.target.value)}
               value={name}
             />
             <Form.Input
+              required
               fluid
               label='Login ID'
               onChange={e=>setusername(e.target.value)}
@@ -198,21 +249,49 @@ const ClientUser = ({data,onDataChange,id,accesslvl}) => {
             />
           </Form.Group>
               <Form.Group widths='equal'>
+                
             <Form.Input
+              required
+              onFocus={event=> event.target.select()}
               fluid
               label='Password'
               type="password"
-              onChange={e=>setpassword(e.target.value)}
+              onChange={e=>{
+                setErrorMsg("");
+                setpassword(e.target.value)
+                checkPassword(e.target.value)
+                if(password2=="default"){
+                  setpassword2("");
+                }
+              }}
               value={password}
             />
+
             <Form.Input
+              error={password2=="default" || password2=="" ||password==password2?null:"Password not match"}
+              required
+              onFocus={event=> event.target.select()}
               fluid
               label='Reconfirm Password'
               type="password"
-              onChange={e=>setpassword2(e.target.value)}
+              onChange={e=>{
+                setErrorMsg("");
+                setpassword2(e.target.value)
+              }}
               value={password2}
             />
           </Form.Group>
+          {
+            pwdLevel!==null && 
+          <Grid columns={2}>
+            <Grid.Column>
+              <Progress {...strengthLabel[pwdLevel]} />
+            </Grid.Column>
+            <Grid.Column>
+              
+            </Grid.Column>
+          </Grid>
+          }
           <Form.Dropdown
                     placeholder='Role'
                     fluid
@@ -223,12 +302,17 @@ const ClientUser = ({data,onDataChange,id,accesslvl}) => {
                     options={roles}
                   />
             </Form>
+            {errorMsg &&
+              <Message error
+                header='Attention'
+                content={errorMsg}
+              />}
             </Modal.Content>
             <Modal.Actions>
               <Button color='red' onClick={() => {setModalOpen(false); resetForm();}}>
                 <Icon name='remove' /> No
               </Button>
-              <Button color='green' onClick={() => {setModalOpen(false); submitForm();}}>
+              <Button color='green' type="submit" form="userEdit" >
                 <Icon name='checkmark' /> Submit
               </Button>
             </Modal.Actions>

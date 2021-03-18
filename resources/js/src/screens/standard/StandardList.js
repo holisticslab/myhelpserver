@@ -16,11 +16,24 @@ import {Switch,Route,Link,useRouteMatch} from "react-router-dom";
 
 import { getStandard,StandardContext } from './standard';
 
-const StandardList = () => {
+const StandardList = (props) => {
 
   const std = useContext(StandardContext);
   let { path, url } = useRouteMatch();
 
+  const [stdlist, setStdList] = React.useState([]);
+
+  
+  React.useEffect(() => {
+console.log(props)
+    const bootstrapAsync = async () => {
+
+      setStdList(props.std);
+    };
+
+    bootstrapAsync();
+
+  }, [props]);
 
   const RenderStandard = props => {
     console.log(props)
@@ -51,8 +64,8 @@ const StandardList = () => {
     <Transition transitionOnMount={true} animation="fade" duration={1000}>
       <div className="in innerContainer">
         <Header as='h3'>Standard List</Header>
-        {std &&
-          <RenderStandard data={std}/>
+        {stdlist &&
+          <RenderStandard data={stdlist}/>
         }   
       </div>
     </Transition>

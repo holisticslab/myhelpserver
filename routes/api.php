@@ -16,6 +16,8 @@ use Illuminate\Support\Facades\Route;
 
 Route::post('/login', 'authController@login');
 
+Route::post('/mcdlogin', 'authController@mcdlogin');
+
 Route::middleware('auth:api')->get('/user', function (Request $request) {
     return $request->user();
 });

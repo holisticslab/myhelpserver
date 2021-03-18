@@ -62,12 +62,12 @@ const AuditorNavigator = () => {
   return (
       
     <div style={{height:'100vh',display:'flex', flexDirection:'column' }}>
-    <Menu borderless attached='top' inverted size='large' style={{backgroundColor:cmpny && cmpny.cmpnyConfig.headerColor? cmpny.cmpnyConfig.headerColor:""}}>
+    <Menu borderless attached='top' inverted size='large' style={{backgroundColor:cmpny.cmpnyConfig && cmpny.cmpnyConfig.headerColor? cmpny.cmpnyConfig.headerColor:""}}>
         <Menu.Item>
-          <Image src={cmpny && cmpny.cmpnyConfig.headerLogo? cmpny.cmpnyConfig.headerLogo:logo} size='mini' verticalAlign='middle'/>
+          <Image src={cmpny.cmpnyConfig && cmpny.cmpnyConfig.headerLogo? cmpny.cmpnyConfig.headerLogo:logo} size='mini' verticalAlign='middle'/>
         </Menu.Item>
 
-  {!isMobile&&<Menu.Item header  as="h3" style={{color:cmpny && cmpny.cmpnyConfig.headerTextColor? cmpny.cmpnyConfig.headerTextColor:""}}>{cmpny && cmpny.cmpnyConfig.appName? cmpny.cmpnyConfig.appName: cmpny.cmpnyName+" Audit Management System"}</Menu.Item>}
+  {!isMobile&&<Menu.Item header  as="h3" style={{color:cmpny.cmpnyConfig && cmpny.cmpnyConfig.headerTextColor? cmpny.cmpnyConfig.headerTextColor:""}}>{cmpny.cmpnyConfig && cmpny.cmpnyConfig.appName? cmpny.cmpnyConfig.appName: cmpny.cmpnyName+" Audit Management System"}</Menu.Item>}
         <Menu.Menu position='right'>
           <Menu.Item
           >

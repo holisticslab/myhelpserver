@@ -12,7 +12,7 @@ import {
   Button,
   Table,
   Tab,
-  Modal,Divider,
+  Modal,Divider,Message,
   Form,Dropdown, Dimmer, Loader,Pagination,Label
 } from 'semantic-ui-react';
 
@@ -125,6 +125,7 @@ const ClientPremises = ({data,onDataChange,id,accesslvl}) => {
                   let filter=e.target.value.toLowerCase()
                   const filterData = basedata.filter(({ name, address }) =>
                   name.toLowerCase().indexOf(filter) > -1 || address.toLowerCase().indexOf(filter) > -1);
+                  setActivePage(1);
                   setPremiseFilter(filterData)
                 }}
                 placeholder='Search Premise...'
@@ -133,8 +134,8 @@ const ClientPremises = ({data,onDataChange,id,accesslvl}) => {
     </Button>
       <Divider/>
      
-  {premiseFilter.length&& <RenderProfile data={premiseFilter} />
-  
+  {premiseFilter.length>0 ? <RenderProfile data={premiseFilter} />:
+      <Message warning content='No premise found!!'/>
   }
   <Modal style={{position:'relative',height:'auto'}}
               onClose={() =>{ setModalOpen(false),resetForm()}}

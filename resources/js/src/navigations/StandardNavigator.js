@@ -15,10 +15,13 @@ import StandardDetails from '../screens/standard/StandardDetails';
 import SchemeVersion from '../screens/scheme/SchemeVersion';
 import {StandardContext, getStandard } from '../screens/standard/standard';
 
+import ContentLoader from '../components/ContentLoader';
+
 const StandardNavigator = () => {
   
     const [std, setstd] = React.useState(null);
     let { path, url } = useRouteMatch();
+    const [isLoading, setLoading] = React.useState(true)
 
     
   React.useEffect(() => {
@@ -26,6 +29,7 @@ const StandardNavigator = () => {
     const bootstrapAsync = async () => {
       getStandard().then(x => {
         setstd(x);
+        setLoading(false);  
       })
     };
 
@@ -38,17 +42,19 @@ const StandardNavigator = () => {
     [std]
 );
   return (
-    <StandardContext.Provider value={standardContext}>
+    
+      <StandardContext.Provider value={standardContext}>
+        <ContentLoader open={isLoading}/>
             <Switch>
-                    <Route exact path={path}>
-                        <StandardList />
-                    </Route>
-                    <Route path={`${path}/details/:index`}>
-                        <StandardDetails />
-                    </Route>
-                    
-                </Switch>
-              </StandardContext.Provider>
+                <Route exact path={path}>
+                    <StandardList />
+                </Route>
+                <Route path={`${path}/details/:index`}>
+                    <StandardDetails />
+                </Route>
+                
+            </Switch>
+          </StandardContext.Provider>
   )
 }
 

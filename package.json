@@ -25,6 +25,7 @@
         "sass-loader": "^10.0.2"
     },
     "dependencies": {
+        "check-password-strength": "^2.0.2",
         "moment": "^2.29.1",
         "react-device-detect": "^1.14.0",
         "react-router-dom": "^5.2.0",

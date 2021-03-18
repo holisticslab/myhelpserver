@@ -270,10 +270,10 @@ class subscriptionController extends Controller
                         array_push($returnObj->cklists,$schmlist->{$v} );
                     }}
                     }
-                    foreach ($value->premises as $v) {
-                        if(array_search($v, array_column($returnObj->premises, 'id'))==false){
-                        $premises->{$v}->id=$v;
-                        array_push($returnObj->premises,$premises->{$v});
+                    foreach ($value->premises as $l) {
+                        if(array_search($l, array_column($returnObj->premises, 'id'))==false){
+                        $premises->{$l}->id=$l;
+                        array_push($returnObj->premises,$premises->{$l});
 
                          }
                     }

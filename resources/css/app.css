@@ -43,6 +43,9 @@
     cursor: -moz-grab;
     cursor: -webkit-grab;
   }
+  .fullwidth{
+      width:100%;
+  }
 /* .tableFixHead          { overflow-y: auto; height: 70vh; display: block; width:100%}
 .tableFixHead thead th { position: sticky; top: 0; } */
 /* .tableFixHead thead tr.green {

@@ -65,7 +65,7 @@ class authController extends Controller
 
     
     public function login(Request $request)
-{
+  {
   try {
     
     $credentials = $request->only('username', 'password');
@@ -104,5 +104,51 @@ class authController extends Controller
   }
 }
 
+public function mcdlogin(Request $request)
+{
+try {
+  $request->merge([
+    'cmpnyFK' => 6,
+    ]);
+
+    $credentials = $request->only('username', 'password','cmpnyFK');
+  $request->merge([
+    'cmpnyFK' => 2,
+    ]);
+    $credentials2 = $request->only('username', 'password','cmpnyFK');
     
+  if (Auth::attempt($credentials)===false && Auth::attempt($credentials2)===false ) {
+    return response()->json(['isSuccess' =>false,'message'=>"Invalid Username and Password"],401);
+  }
+
+  $user = Auth::user();
+  if ( ! Hash::check($request->password, $user->password, [])) {
+     throw new \Exception('Error in Login');
+  }
+  $existtoken=$user->tokens()->first();
+
+  if($existtoken){
+
+      $existtoken->delete();
+
+  }
+  $tokenResult = $user->createToken('authToken')->plainTextToken;
+
+  $user = Auth::user();
+  $user->lastLoginIP = $request->getClientIp();
+  $user->lastLogin =  now()->toDateTimeString();
+  $user->save();
+
+  $subcr= subscription::select('dateStart','dateEnd')->where('cmpnyFK',Auth::user()->getCompany()->cmpnyPK)->where('dateStart', '<=', Carbon::now())->where('dateEnd', '>=', Carbon::now())->orderBy('dateEnd','desc')->first();
+  return response()->json(['isSuccess' =>true,'user' =>Auth::user(),'accesslevel'=>Auth::user()->getRoleLevel(),'cmpny'=>Auth::user()->getCompany(),'access_token' => $tokenResult,'subcr'=>$subcr]);
+
+} catch (Exception $error) {
+  return response()->json([
+    'isSuccess'=>false,
+    'status_code' => 500,
+    'message' => 'Error in Login',
+    'error' => $error,
+  ]);
+}
+}
 }
