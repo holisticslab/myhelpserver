@@ -128,9 +128,7 @@ try {
   $existtoken=$user->tokens()->first();
 
   if($existtoken){
-
       $existtoken->delete();
-
   }
   $tokenResult = $user->createToken('authToken')->plainTextToken;
 

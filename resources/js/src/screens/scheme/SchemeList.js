@@ -9,19 +9,37 @@ import {
   Sidebar,
   Transition,
   List,
-  Button
+  Button,Dimmer,Loader
 } from 'semantic-ui-react';
 
 import {Switch,Route,Link,useRouteMatch} from "react-router-dom";
 
-import { getScheme,SchemeContext } from './scheme';
+import { getScheme,SchemeContext,migrateData } from './scheme';
 
 const SchemeList = () => {
 
-  const schmes = useContext(SchemeContext);
+  const {schmes} = useContext(SchemeContext);
   let { path, url } = useRouteMatch();
+  const [isLoading, setLoading] = React.useState(false);
+  const [filteredScheme, setFilteredScheme] = React.useState(schmes);
 
+  React.useEffect(() => {
+    const bootstrapAsync=async()=>{
+      setFilteredScheme(schmes);
+    }
+    bootstrapAsync();
+  }, [schmes])
 
+  const migrate=()=>{
+    setLoading(true);
+    migrateData().then(x=>{
+      console.log(x);
+      setLoading(false);
+    }).catch(e=>{
+      setLoading(false);
+      console.log(e);
+    })
+  }
   const RenderScheme = props => {
     console.log(props)
     const data = props.data;
@@ -35,25 +53,39 @@ const SchemeList = () => {
         </List.Content>
       </List.Item>
     );
-    return <List className="listScroll" celled ordered  verticalAlign='middle'>
-      {listItems}
-      {/* <List.Item>
-              Dogs
-            <List.List>
-                <List.Item>Labradoodles</List.Item>
-                <List.Item>Shiba Inu</List.Item>
-                <List.Item>Mastiff</List.Item>
-              </List.List>
-            </List.Item> */}
-    </List>
+    return<React.Fragment>
+       <Dimmer active={isLoading}>
+        <Loader>Loading</Loader>
+      </Dimmer>
+      {/* <Button fluid onClick={()=>migrate()} basic color='green' > <Icon name='plus' />Migrate from QCMSv2</Button> */}
+        <List className="listScroll" celled ordered  verticalAlign='middle'>
+          {listItems}
+        </List>
+    </React.Fragment>
   }
   return (
 
     <Transition transitionOnMount={true} animation="fade" duration={1000}>
       <div className="in innerContainer">
-        <Header as='h3'>Scheme List</Header>
-        {schmes &&
-          <RenderScheme data={schmes}/>
+      <Segment basic clearing style={{padding:0}}>
+        <Header as='h6' floated='right'>
+        <Input 
+                icon={{ name: 'search', link: true }}
+                onChange={e=>{
+                  let filter=e.target.value.toLowerCase()
+                  const filterData = schmes.filter(({ cklistName}) =>
+                  cklistName.toLowerCase().indexOf(filter) > -1);
+                  setFilteredScheme(filterData)
+                }}
+                placeholder='Search Scheme...'
+              />
+        </Header>
+        <Header as='h3' floated='left'>
+        Scheme List
+        </Header>
+      </Segment>
+        {filteredScheme &&
+          <RenderScheme data={filteredScheme}/>
         }   
       </div>
     </Transition>

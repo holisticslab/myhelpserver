@@ -120,3 +120,16 @@ export const postCopyCklist=(data) => {
 
 
 }
+
+
+export const saveCopyCklist=(data) => {
+  return new Promise( (resolve, reject)=> {
+    axios.post('/savecklist',data).then(({ data }) => resolve(data))
+    .catch( (error)=> {
+      sessionRedirect(error);
+      reject(error);
+    });
+  });
+
+
+}

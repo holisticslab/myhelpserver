@@ -46,6 +46,10 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
     
     Route::post('/postcklist',"subscriptionController@postCklist");
     Route::post('/postclientcklist',"checklistController@postCklist");
+
+    
+    Route::post('/savecklist',"checklistController@savecklist");
+    
     
     Route::get('/getstaffcmpny/{id}',"companyController@getStaffCompany");
     

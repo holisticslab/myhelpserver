@@ -20,7 +20,7 @@ import { getScheme, SchemeContext } from './scheme';
 
 const SchemeDetails = () => {
 
-  const schmes = useContext(SchemeContext);
+  const {schmes} = useContext(SchemeContext);
   let { path, url } = useRouteMatch();
 
   const { index } = useParams();
@@ -30,7 +30,7 @@ const SchemeDetails = () => {
     console.log(props)
     const data = props.data;
     const listItems = data.map((x,i) =>
-      <List.Item key={i} as={Link} to={`${url}/version/${i}`}>
+      <List.Item key={i} as={Link} to={`${url}/editor/${i}`}>
         <List.Content>
         {x.version}
         

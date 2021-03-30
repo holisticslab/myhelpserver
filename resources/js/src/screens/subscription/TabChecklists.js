@@ -20,7 +20,7 @@ import * as moment from 'moment';
 
 import { useParams, Link, useRouteMatch } from "react-router-dom";
 
-import {deleteUser, postCopyCklist, SubscriptionContext,getSubcrData } from './subscription';
+import {deleteUser, postCopyCklist, SubscriptionContext,getSubcrData,saveCopyCklist } from './subscription';
 
 const renderHTML = (rawHTML) => React.createElement("div", { dangerouslySetInnerHTML: { __html: rawHTML } });
 
@@ -50,6 +50,10 @@ const TabChecklists = ({data,stock,onDataChange,onDelete,id}) => {
     postCopyCklist(postdata).then(onDataChange).catch(e=>console.log(e))
     resetForm();
   }
+  const saveToTemplate=(pk)=>{
+    console.log(data[pk]);
+    saveCopyCklist({data:data[pk]}).then(x=>console.log(x)).catch(e=>console.log(e));
+  }
  
   const listItems =  Object.keys(data).map((pg) => 
   <List.Item  key={pg}>
@@ -59,6 +63,7 @@ const TabChecklists = ({data,stock,onDataChange,onDelete,id}) => {
     <Dropdown.Menu className='right'>
       {/* <Dropdown.Item  onClick={()=>editForm(pg)} color='blue' icon='edit outline' text='Edit' /> */}
       <Dropdown.Item  onClick={()=>deleteForm(pg)} icon='trash' text='Remove' />
+      <Dropdown.Item  onClick={()=>saveToTemplate(pg)} icon='save' text='Save to template' />
     </Dropdown.Menu>
   </Dropdown>
   </List.Content>

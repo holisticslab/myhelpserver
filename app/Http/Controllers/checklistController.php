@@ -23,6 +23,22 @@ class checklistController extends Controller
         }
         return response()->json($cklist);
     }
+    function savecklist(Request $request){
+        $schm=$request->data;
+        
+        $cklist = checklist::firstOrNew(['cklistName' =>  trim($schm['name']."_backup")]);
+
+
+                if($cklist->cklistData){
+                    $exist=json_decode($cklist->cklistData);
+                    array_push($exist,$schm);
+                    $cklist->cklistData = json_encode($exist);}
+                else{
+                    $cklist->cklistData = json_encode(array($schm));
+                }
+                $cklist->save();
+        return response()->json($request->data["name"]);
+    }
 
     function postCklist(Request $request){
         

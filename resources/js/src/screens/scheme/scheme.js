@@ -15,6 +15,19 @@ export const getScheme = () => {
   });
 
 }
+export const saveScheme=(data)=>{
+  
+}
+export const migrateData = () => {
+  return new Promise( (resolve, reject)=> {
+    axios.get('/getcklist').then(({ data }) => resolve(data))
+    .catch( (error)=> {
+      sessionRedirect(error)
+      reject(error);
+    });
+  });
+
+}
 export const logout = () => {
   return new Promise( (resolve, reject)=> {
     axios.get('/logout').then(({ data }) => resolve(data))

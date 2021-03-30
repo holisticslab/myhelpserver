@@ -91,8 +91,7 @@ console.log(profile);
           active={activeItem === 'user'}
         />
           </Menu>
-
-          <Segment className="innerContainer" basic>
+          <Segment className="innerContainer flexCol"  basic>
             <Switch>
                     <Route exact path="/">
                         <StandardNavigator />
