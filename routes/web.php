@@ -32,6 +32,8 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
     Route::get('/getprofile', "userController@getAllUser");
     Route::get('/getscheme',"checklistController@getAllCklist");
     Route::get('/getstandard',"standardController@getAllStandard");
+    Route::post('/savestandard',"standardController@saveStandard");
+    
     Route::get('/getcompany',"companyController@getAllCompany");
     Route::get('/getsubscription',"subscriptionController@getAllSubcription");
     Route::get('/getsubcrdata/{id?}',"subscriptionController@getSubscriptionData");
@@ -73,12 +75,8 @@ Route::get('/customlogin',"authController@getCustomLogin");
 // Route::get('/upduser',"userController@updateuser");
 // Route::get('/updcmpny',"userController@updateCompany");
 Route::get('/getcklist',"migrationController@getCklist");
-// Route::get('/getstd',"migrationController@getStandard");
+Route::get('/getstd',"migrationController@getStandard");
 // Route::get('/getmcdPremise',"migrationController@migrateMCD");
-
-
-
-
 // Route::get('/getprofile',"userController@getuser");
 
 

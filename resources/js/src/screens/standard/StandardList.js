@@ -16,32 +16,31 @@ import {Switch,Route,Link,useRouteMatch} from "react-router-dom";
 
 import { getStandard,StandardContext } from './standard';
 
-const StandardList = (props) => {
+const StandardList = () => {
 
-  const std = useContext(StandardContext);
+  const {std} = useContext(StandardContext);
   let { path, url } = useRouteMatch();
 
-  const [stdlist, setStdList] = React.useState([]);
+  const [stdlist, setStdList] = React.useState(std);
 
   
   React.useEffect(() => {
-console.log(props)
     const bootstrapAsync = async () => {
 
-      setStdList(props.std);
+      setStdList(std);
     };
 
     bootstrapAsync();
 
-  }, [props]);
+  }, [std]);
 
   const RenderStandard = props => {
     console.log(props)
     const data = props.data;
     const listItems = data.map((x,i) =>
-      <List.Item key={i} as={Link} to={`${url}/details/${i}`}>
+      <List.Item key={i} as={Link} to={`${url}std/details/${i}`}>
         <List.Content>
-        <List.Header>{x.code}</List.Header>{x.name}
+        <List.Header>{x.code}</List.Header>{x.name} 
         <List.Content floated='right'>{x.lang}</List.Content>
         
         </List.Content>
@@ -63,7 +62,23 @@ console.log(props)
 
     <Transition transitionOnMount={true} animation="fade" duration={1000}>
       <div className="in innerContainer">
-        <Header as='h3'>Standard List</Header>
+      <Segment basic clearing style={{padding:0}}>
+        <Header as='h6' floated='right'>
+        <Input 
+                icon={{ name: 'search', link: true }}
+                onChange={e=>{
+                  let filter=e.target.value.toLowerCase()
+                  const filterData = std.filter(({ name,code}) =>
+                  name.toLowerCase().indexOf(filter) > -1||code.toLowerCase().indexOf(filter) > -1);
+                  setStdList(filterData)
+                }}
+                placeholder='Search Scheme...'
+              />
+        </Header>
+        <Header as='h3' floated='left'>
+        Standard List
+        </Header>
+      </Segment>
         {stdlist &&
           <RenderStandard data={stdlist}/>
         }   

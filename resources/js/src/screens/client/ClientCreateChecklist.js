@@ -21,10 +21,17 @@ import * as moment from 'moment';
 import { useParams, Link, useRouteMatch,useHistory } from "react-router-dom";
 
 import { ClientContext,saveChecklist } from './client';
+
+import {AuthContext} from '../auth/auth';
 import { deleteUser, postUser } from '../subscription/subscription';
 import { EditableLabel, HeaderAction, PromptModal } from '../../components/simplifyUi';
 import DraggableTableRow from '../../components/DraggableTableRow';
 import {cklistType} from '../../components/constant';
+
+
+import pdfMake from "pdfmake/build/pdfmake";
+import pdfFonts from "pdfmake/build/vfs_fonts";
+pdfMake.vfs = pdfFonts.pdfMake ? pdfFonts.pdfMake.vfs : pdfMake.vfs;
 
 const renderHTML = (rawHTML) => React.createElement("div", { dangerouslySetInnerHTML: { __html: rawHTML } });
 
@@ -34,6 +41,7 @@ const ClientCreateChecklist = ({ data, onDataChange, id }) => {
 const history = useHistory();
   const { index } = useParams();
   const { activeDraft,schmlist,reloadData,clearDraft } = React.useContext(ClientContext);
+  const { cmpny} = React.useContext(AuthContext);
   const [modalOpen, setModalOpen] = React.useState(false);
 
   const [objid, setID] = React.useState(null);
@@ -96,6 +104,139 @@ const history = useHistory();
    bootstrapAsync();
   }, [activeDraft])
 
+  const printCklist=()=>{
+    let dd = {
+    
+      content: [
+        {
+          image: 'logo',
+          width: 200,
+          alignment: 'center',
+          margin: [0, 150, 0, 30]
+      }
+      , {
+          text: name,
+          fontSize: 28,
+          bold: true,
+          alignment: 'center',
+          margin: [0, 30]
+      },{
+        text: "Version "+version,
+        fontSize: 14,
+        alignment: 'center',
+        margin: [0, 0, 0, 30]
+    }
+  
+    ],
+    images: {
+      logo:cmpny.cmpnyConfig.headerLogo
+  }
+  }
+
+  let tempcklist=JSON.parse(JSON.stringify(cklistData));
+  for (const [i,{section,items}] of tempcklist.entries()) {
+
+    let sectionHeader = {
+      pageBreak: 'before',
+      margin: [0, 0, 0, 20],
+      table: {
+          widths: ['*'],
+          body: [
+              [{
+                  alignment: 'center',
+                  text: String.fromCharCode(65 + i) + '. ' + section,
+                  fillColor: '#000000',
+                  color: '#ffffff',
+                  bold: true,
+                  fontSize: 18
+              }],
+
+          ]
+      }
+  }
+
+  let reportitem = {
+      table: {
+          widths: ['auto', '*', 'auto', 'auto', 'auto'],
+          body: [
+              [{
+                  text: 'No.',
+                  bold: true
+              }, {
+                  text: "Item",
+                  bold: true
+              }, {
+                  text: "Auto Failed?",
+                  bold: true
+              }, {
+                  text: 'NC',
+                  bold: true
+              }, {
+                  text: "Reference",
+                  bold: true
+              }]
+          ]
+      }
+  }
+  let deduct=-1;
+  for (const [i,{id,severity,type,text_ms,info,autofailed}] of items.entries()) {
+    
+    let resultcol;
+
+   
+    if(type ==="CHECKLIST"){
+      
+      // let idx=severities.findIndex(({id})=>id==severity);
+      
+      resultcol=severities.find(z => z.id == severity).name;
+
+    }
+    else{
+      resultcol="";
+    }
+   
+    let text = text_ms;
+    
+
+    let infolist = {ul: info};
+    if(type ==="LABEL" || type ==="TITLE"){ 
+      reportitem.table.body.push(
+        [{ text, colSpan: 5,bold:type ==="TITLE"}]);
+    deduct=i;
+}else{
+  reportitem.table.body.push([
+    (i-deduct) + '',
+    text,
+    { text:autofailed?"true":"false"},
+    resultcol,
+    infolist
+]);
+}
+
+  
+  
+    
+  }
+    // items.forEach(async({id,autoFailed,severity,type,text_ms,info,autofailed}, i) => {
+      
+    // });
+
+    dd.content.push(sectionHeader);
+    dd.content.push(reportitem);
+
+  
+  }
+
+  try
+ { 
+  pdfMake.createPdf(dd).open();
+}
+  catch(e){
+    console.log(e)
+    alert(e);
+  }
+
+  }
   const updateDraftName = x => {
     setname(x);
     let cklistDraft = JSON.stringify(savedCklist);
@@ -779,6 +920,8 @@ const history = useHistory();
           clearDraft();
           reloadData(k);
       })}}>Save</Button>
+
+<Button color="teal" fluid onClick={()=>printCklist()}>Print</Button>
       </Segment>
       {/* <Segment>
         <EditableLabel

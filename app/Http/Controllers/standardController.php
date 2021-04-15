@@ -16,4 +16,18 @@ class standardController extends Controller
         }
         return response()->json($std);
     }
+
+    function saveStandard(Request $request){
+
+        $standard = standard::firstOrNew([
+            'stdPK' =>  trim($request->stdPK),
+            ]);
+        $standard->code = $request->code??"";
+        $standard->name = $request->name;
+        $standard->lang = $request->lang;
+        $standard->data = json_encode($request->data);
+        $standard->save();
+        
+        return response()->json($standard);
+    }
 }

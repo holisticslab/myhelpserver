@@ -10,7 +10,10 @@ import {
   Transition,
   List,
   Button,
-  Table,Tab
+  Table,
+  Tab,
+  Modal, Divider, Accordion,
+  Form, Dropdown, Card,Popup
 } from 'semantic-ui-react';
 
 import * as moment from 'moment';
@@ -19,16 +22,19 @@ import { useParams, Link, useRouteMatch } from "react-router-dom";
 
 import { getStandard, StandardContext } from './standard';
 
+import { EditableLabel, HeaderAction, PromptModal } from '../../components/simplifyUi';
+
 const renderHTML = (rawHTML) => React.createElement("div", { dangerouslySetInnerHTML: { __html: rawHTML } });
 
 const StandardDetails = () => {
 
-  const std = useContext(StandardContext);
+  const {std,saveStd} = useContext(StandardContext);
   let { path, url } = useRouteMatch();  
   const [stdData, setStdData] = React.useState([]);
   const [filteredData, setfilteredData] = React.useState([]);
 
-  const [details, setDetails] = React.useState([]);
+  const [details, setDetails] = React.useState(null);
+  const [panes, setPanes] = React.useState([]);
 
   const { index } = useParams();
 
@@ -36,15 +42,25 @@ const StandardDetails = () => {
   React.useEffect(() => {
 
     const bootstrapAsync = async () => {
-      
-     setDetails(std[index])
-      setStdData(std[index].data);
-      setfilteredData(std[index].data);
+      if(std){
+        setDetails(std[index])
+        renderPanes(std[index].data);
+      }
+      // setStdData(std[index].data);
+      // setfilteredData(std[index].data);
     };
 
     bootstrapAsync();
 
   }, [std]);
+  const renderPanes=(data)=>{
+    let listpane=Object.keys(data).map((ln)=>{
+      return { menuItem:`Page ${ln}`, render: () => <Tab.Pane>{ln} Content</Tab.Pane>}
+    });
+
+    setPanes(listpane);
+
+  }
 
   const RenderItem = props => {
     const data = props.data;
@@ -76,50 +92,83 @@ const StandardDetails = () => {
     return <Tab menu={{ vertical: true }} panes={panes} />
   }
 
-  if (details)
-   {
-     return (
+  
+  const updateDraftName = name => {
+    setDetails({...details,name});
+  }
+  const updateDraftCode = code => {
+    setDetails({...details,code});
+  }
+  const updateDraftLang = lang => {
+    setDetails({...details,lang});
+  }
 
-      <Transition transitionOnMount={true} animation="fade" duration={1000}>
-        <div className="in innerContainer listScroll">
-          <Header as='h3' dividing style={{ lineHeight: '2em' }}>
-            <Button size='medium' circular icon='angle left' basic color='green' as={Link} to={`${url.split("/details").shift()}`} />
-              Standard : {`${details.code}: ${details.name}`} </Header>
-              <Input fluid
-                icon={{ name: 'search', link: true }}
-                onChange={e=>{
-                  let filter=e.target.value.toLowerCase()
-                  let newdata= JSON.parse(JSON.stringify(stdData));
-                  Object.keys(stdData).flatMap((pg) => 
-                  newdata[pg]= Object.fromEntries(Object.entries(stdData[pg]).filter(([key, value]) =>
-                  value.toLowerCase().indexOf(filter) > -1
-                  ))
-                  )
-                 
-                  console.log(newdata);
-                  setfilteredData(newdata)
-                }}
-                placeholder='Search users...'
-              />
-          {/* <Segment.Group horizontal>
-            <Segment color='green'>
-              <Header as='h3' dividing>Severity</Header>
-              <RenderSeverity data={checklist.severity} />
-            </Segment>
-            <Segment color='green'>
-              <Header as='h3' dividing>Category</Header>
-              <RenderCategory data={checklist.category} />
-            </Segment>
-          </Segment.Group> */}
-          <Segment color='green'>
-                <Header as='h3' dividing>Standards</Header>
-                <RenderStandard data={filteredData}/>
-              </Segment>
-        </div>
-      </Transition>
-    )}
-  else
-    return (<Header as='h3' >Loading....</Header>)
+  return <React.Fragment>
+    {details &&
+    <React.Fragment>
+  <Segment.Group horizontal>
+    <Segment>
+      <EditableLabel
+        fluid
+        placeholder="Code"
+        label='Code'
+        value={details.code}
+        onSave={updateDraftCode}
+      />
+    </Segment>
+    <Segment>
+      <EditableLabel
+        fluid
+        placeholder="Language"
+        label='Language'
+        value={details.lang}
+        onSave={updateDraftLang}  
+      />
+    </Segment>
+    {/*
+    <Segment>
+      <EditableLabel
+        fluid
+        placeholder="1.0.0"
+        label='Checklist Version'
+        icon={{ label: null }}
+        onSave={updateDraftVersion}
+        value={version}
+      />
+    </Segment>
+     */}
+    <Segment >
+     
+    <Button color="teal" fluid onClick={()=>{
+      saveStd(index,details)
+    //    let n = Math.round(Date.now()/ 1000);
+    //    let newid=n.toString(36)
+    //    if(!savedCklist.name) savedCklist.name=name;
+    //    if(!savedCklist.version) savedCklist.version=version;
+    //    saveScheme({id:objid?objid:newid,data:savedCklist,cmpnyid:id}).then(k=>{
+    //     history.goBack();
+    //     clearDraft();
+    //     reloadData(k);
+    // })
+    }}>Save</Button>
+
+    </Segment>
+    </Segment.Group>
+    <Segment attached="bottom">
+    <EditableLabel
+      fluid
+      placeholder="Name"
+      label='Name'
+      value={details.name}
+      onSave={updateDraftName}
+    />
+  </Segment>
+  </React.Fragment>
+    }
+  <Tab className="clientTable"
+  grid={{ paneWidth: 11, tabWidth: 4 }}
+   menu={{ pointing: true,vertical: true,  tabular: true  }} panes={panes} />
+</React.Fragment>
 }
 
 export default StandardDetails

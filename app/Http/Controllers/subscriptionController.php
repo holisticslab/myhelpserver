@@ -266,14 +266,17 @@ class subscriptionController extends Controller
                     foreach ($value->cklists as $v) {
                         if(!is_array($v) &&  property_exists($schmlist, $v)){
                         if(array_search($v, array_column($returnObj->cklists, 'id'))==false){
+                            if (property_exists($schmlist, $v)){
                         $schmlist->{$v}->id=$v;
-                        array_push($returnObj->cklists,$schmlist->{$v} );
+                        array_push($returnObj->cklists,$schmlist->{$v} );}
                     }}
                     }
                     foreach ($value->premises as $l) {
                         if(array_search($l, array_column($returnObj->premises, 'id'))==false){
-                        $premises->{$l}->id=$l;
-                        array_push($returnObj->premises,$premises->{$l});
+                            if (property_exists($premises, $l)) {
+                                $premises->{$l}->id=$l;
+                                array_push($returnObj->premises,$premises->{$l});
+                            }
 
                          }
                     }

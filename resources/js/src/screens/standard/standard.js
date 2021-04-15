@@ -15,3 +15,14 @@ export const getStandard = () => {
   });
 
 }
+
+export const saveStandard = (data) => {
+  return new Promise( (resolve, reject)=> {
+    axios.post('/savestandard',data).then(({ data }) => resolve(data))
+    .catch( (error)=> {
+      sessionRedirect(error);
+      reject(error);
+    });
+  });
+
+}

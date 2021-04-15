@@ -27,6 +27,7 @@
     "dependencies": {
         "check-password-strength": "^2.0.2",
         "moment": "^2.29.1",
+        "pdfmake": "^0.1.71",
         "react-device-detect": "^1.14.0",
         "react-router-dom": "^5.2.0",
         "semantic-ui-css": "^2.4.1",

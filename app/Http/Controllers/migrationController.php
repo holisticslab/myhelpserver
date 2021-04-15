@@ -113,6 +113,7 @@ class migrationController extends Controller
 
     function getStandard(){
 
+        standard::truncate();
 
         $response = file_get_contents('http://ec2-54-169-201-41.ap-southeast-1.compute.amazonaws.com/qcmsv2/getstandard');
         $data = json_decode($response);
@@ -130,14 +131,17 @@ class migrationController extends Controller
         //     $cklist->severity=$schm['severities'];
         //     $cklist->data=$item->json();
 
-            $standard = new standard;
+            $standard = standard::firstOrNew([
+                'code' =>  trim($std->code),
+                'name' =>  trim($std->name)
+                ]);
             $standard->code = $std->code;
             $standard->name = $std->name;
             $standard->lang = $std->lang;
             $standard->data = json_encode($std->data);
-           //s $standard->save();
+            $standard->save();
         }
-        return response()->json($standard);
+        return response()->json($data);
 
     }
 

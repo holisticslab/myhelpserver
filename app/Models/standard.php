@@ -10,4 +10,8 @@ class standard extends Model
     use HasFactory;
     protected $primaryKey = 'stdPK';
     public $timestamps = false;
+
+    protected $fillable = [
+        'code', 'name'
+    ];
 }

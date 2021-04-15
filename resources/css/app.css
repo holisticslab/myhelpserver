@@ -18,7 +18,7 @@
     height: 80vh;
 }
 .header + .listScroll{
-    height: 90%;
+    height: 80vh;
 
 }
 .subcrTabPane{
@@ -28,6 +28,7 @@
 .clientTable{
     height: 60vh;
     overflow-y: auto;
+    overflow-x: hidden;
     padding-bottom: 5vh;
 }
 .clientUserTable{

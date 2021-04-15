@@ -96,9 +96,9 @@ console.log(profile);
                     <Route exact path="/">
                         <StandardNavigator />
                     </Route>
-                    {/* <Route path="/std">
+                    <Route path="/std">
                         <StandardNavigator />
-                    </Route> */}
+                    </Route>
                     <Route path="/scheme">
                         <SchemeNavigator />
                     </Route>
