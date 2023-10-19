@@ -27,10 +27,10 @@
     </head>
     <body class="antialiased">
         <div class="container">
-        <p style="text-align: center;"><strong>MyHelp Management System </strong></p>
+        <p style="text-align: center;"><strong>QuikHalal Management System </strong></p>
 <p style="text-align: center;">Last updated October 3<sup>rd</sup>, 2022</p>
 <p><strong>Privacy Policy</strong></p>
-<p>Holisticslab Sdn Bhd built the MyHelp Management System app as an internal app for McDonald's&reg; Malaysia. This page is used to inform visitors regarding our policies with the collection, use, and disclosure of Personal Information if anyone decided to use our Service. If you choose to use our Service, then you agree to the collection and use of information in relation to this policy. The Personal Information that we collect is used for providing and improving the Service. We will not use or share your information with anyone except as described in this Privacy Policy. The terms used in this Privacy Policy have the same meanings as in our Terms and Conditions, which is accessible at MyHelp Management System unless otherwise defined in this Privacy Policy.</p>
+<p>Holisticslab Sdn Bhd built the QuikHalal Management System app as an internal app for halal audit. This page is used to inform visitors regarding our policies with the collection, use, and disclosure of Personal Information if anyone decided to use our Service. If you choose to use our Service, then you agree to the collection and use of information in relation to this policy. The Personal Information that we collect is used for providing and improving the Service. We will not use or share your information with anyone except as described in this Privacy Policy. The terms used in this Privacy Policy have the same meanings as in our Terms and Conditions, which is accessible at QuikHalal Management System unless otherwise defined in this Privacy Policy.</p>
 <p>&nbsp;</p>
 <p><strong>Information Collection and Use</strong></p>
 <p>For a better experience, while using our Service, we may require you to provide us with certain personally identifiable information, including but not limited to Personal Data, Geo-Location Information, Mobile Device Access and Mobile Device Data. The information that we request will be retained by us and used as described in this privacy policy. The app does use third party services that may collect information used to identify you.</p>

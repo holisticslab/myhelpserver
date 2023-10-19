@@ -90,6 +90,7 @@ console.log(profile);
           to="/profile"
           active={activeItem === 'user'}
         />
+        
           </Menu>
           <Segment className="innerContainer flexCol"  basic>
             <Switch>

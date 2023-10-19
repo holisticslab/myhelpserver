@@ -31,8 +31,13 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
     Route::get('/getroles', "userController@getRoles");
     Route::get('/getprofile', "userController@getAllUser");
     Route::get('/getscheme',"checklistController@getAllCklist");
+    Route::get('/getschemedtl/{id?}',"checklistController@getCklist");
+    Route::post('/postscheme',"checklistController@postScheme");
+    Route::post('/deletescheme',"checklistController@deleteScheme");
     Route::get('/getstandard',"standardController@getAllStandard");
+    Route::get('/getstandarddtl/{id?}',"standardController@getStandardDtl");
     Route::post('/savestandard',"standardController@saveStandard");
+    Route::post('/addstandard',"standardController@addStandard");
     
     Route::get('/getcompany',"companyController@getAllCompany");
     Route::get('/getsubscription',"subscriptionController@getAllSubcription");
@@ -60,8 +65,8 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
     Route::get('/getclientdata',"subscriptionController@getclientdata");
     Route::get('/getindsubscr',"subscriptionController@getIndSubscription");
 
-    
-    
+    Route::get('/getActiveSession',"authController@activeSession");
+    Route::get('/getlatestcklist/{id?}',"subscriptionController@getLatestCklist");
 });
 
 
@@ -76,13 +81,29 @@ Route::get('/customlogin',"authController@getCustomLogin");
 // Route::get('/updcmpny',"userController@updateCompany");
 Route::get('/getcklist',"migrationController@getCklist");
 Route::get('/getstd',"migrationController@getStandard");
+
+Route::get('/getdp',"migrationController@migrateDuoPharma");
 // Route::get('/getmcdPremise',"migrationController@migrateMCD");
 // Route::get('/getprofile',"userController@getuser");
 
 
+Route::domain('app.quikhalal.com')->group(function () {
+    Route::get('/policy', function () {
+        return view('quikhalal_policy');
+    });
+});
 Route::get('/policy', function () {
     return view('policy');
 });
+
+Route::get('/meetinginfo/{id?}',"meetingController@getInfo");
+Route::post('/updatemeeting',"meetingController@updateMeeting");
+
+
+
+Route::get('/meeting/{path?}', function () {
+    return view('broadcast');
+})->where('path', '.*');
 
 Route::get('/{path?}', function () {
     return view('app');

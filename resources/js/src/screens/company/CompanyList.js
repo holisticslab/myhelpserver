@@ -14,14 +14,18 @@ import {
 
 import {Switch,Route,Link,useRouteMatch} from "react-router-dom";
 
-import { getCompany,CompanyContext } from './company';
+import { getCompany,CompanyContext,updateCompany } from './company';
+import {  PromptModal } from '../../components/simplifyUi';
 
 const CompanyList = () => {
 
-  const cmpny = useContext(CompanyContext);
+  const { cmpny,updList} = React.useContext(CompanyContext);
   let { path, url } = useRouteMatch();
 
-
+  const addCmpny =({name,address})=>{
+    updateCompany({cmpnyName:name,cmpnyDetails:{address}}).then(k=>{console.log(k);updList()})
+  }
+  
   const RenderCompany = props => {
     console.log(props)
     const data = props.data;
@@ -34,7 +38,7 @@ const CompanyList = () => {
         </List.Content>
       </List.Item>
     );
-    return <List className="listScroll" celled ordered divided verticalAlign='middle' selection>
+    return <List className="clientUserTable" celled ordered divided verticalAlign='middle' selection>
       {listItems}
       {/* <List.Item>
               Dogs
@@ -51,6 +55,14 @@ const CompanyList = () => {
     <Transition transitionOnMount={true} animation="fade" duration={1000}>
       <div className="in innerContainer">
         <Header as='h3'>Company List</Header>
+        <PromptModal onSave={addCmpny}
+                title="Add Company"
+                items={[
+                  { value: "", label: "Company Name",type: "text", name: "name" },
+                  { value:"", label: "Company Address",type: "text", name: "address" }
+                ]}
+                PrompButton={(props) => <Button fluid basic color='green' {...props} > <Icon name='plus' />Add Company</Button>}
+              />
         {cmpny &&
           <RenderCompany data={cmpny}/>
         }   

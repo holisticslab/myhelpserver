@@ -16,7 +16,29 @@ export const getStandard = () => {
 
 }
 
+export const getStandardDetails = (id) => {
+  return new Promise( (resolve, reject)=> {
+    axios.get(`/getstandarddtl/${id}`).then(({ data }) => resolve(data))
+    .catch( (error)=> {
+      sessionRedirect(error);
+      reject(error);
+    });
+  });
+
+}
+
 export const saveStandard = (data) => {
+  return new Promise( (resolve, reject)=> {
+    axios.post('/savestandard',data).then(({ data }) => resolve(data))
+    .catch( (error)=> {
+      sessionRedirect(error);
+      reject(error);
+    });
+  });
+
+}
+
+export const addStandard = (data) => {
   return new Promise( (resolve, reject)=> {
     axios.post('/savestandard',data).then(({ data }) => resolve(data))
     .catch( (error)=> {

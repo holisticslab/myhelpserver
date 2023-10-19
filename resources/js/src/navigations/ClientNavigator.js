@@ -34,6 +34,7 @@ const ClientNavigator = () => {
     const [users, setusers] = React.useState([]);
     const [premises, setpremises] = React.useState([]);
     const [schmlist, setschmlist] = React.useState([]);
+    const [allowedSchm, setAllowedSchm] = React.useState([]);
     const [activeDraft, setDraft] = React.useState(null);
     const [active_subcr, setactive_subcr] = React.useState(null);
     const [sideBarOpen, openSidebar] = React.useState(false);
@@ -51,11 +52,13 @@ const ClientNavigator = () => {
         setDraft(cklistDraft);
       }
       getData().then(x=>{
+        // console.log(x.allowedSchm);
         setsubcrData(x.data);
         setusers(x.users);
         setpremises(x.premises);
         setschmlist(x.schmlist);
         setactive_subcr(x.active_subcr);
+        setAllowedSchm(x.allowedSchm);
         setloading(false);
       }).catch(e=>{
         console.log(e)
@@ -69,16 +72,15 @@ const ClientNavigator = () => {
   }, []);
 
   const clientContext = React.useMemo(
-    () => ({subcrData,users,premises,schmlist,activeDraft,active_subcr,
+    () => ({subcrData,users,premises,schmlist,activeDraft,active_subcr,allowedSchm,
       reloadData:setschmlist,
       reloadSubcr:setsubcrData,
       reloadPremise:setpremises,
       reloadUser:setusers,
     clearDraft:()=>{localStorage.removeItem(cmpny.cmpnyPK + "_cklistDraft"); setDraft(null);}
     }),
-    [subcrData,users,premises,schmlist,activeDraft,active_subcr]
+    [subcrData,users,premises,schmlist,activeDraft,active_subcr,allowedSchm]
 );
-
 const updateUser=(x,type)=>{
   if(users){
   // ]
@@ -175,6 +177,7 @@ const updateCklist =(x)=>{
             Help
           </Menu.Item> */}
         </Menu.Menu>
+        
       </Menu>
       
    <div  style={{display:'flex', flexDirection:'row',flex:1, overflow:'hidden' }}>
@@ -226,6 +229,11 @@ const updateCklist =(x)=>{
          to="/users"
          active={activeItem === 'user'}
        />
+       <Menu.Item as={Link} onClick={()=>setactiveItem('access')}
+          name='Record Access'
+          to="/access"
+          active={activeItem === 'access'}
+        />
        <Menu.Item onClick={()=>sidebarClick(signOut())} attached="bottom"
          name='Logout'
        />
@@ -271,7 +279,14 @@ const updateCklist =(x)=>{
           to="/users"
           active={activeItem === 'user'}
         />
-      </Menu>}
+
+        {profile.accesslvl<=1 && <Menu.Item as={Link} onClick={()=>setactiveItem('access')}
+          name='Record Access'
+          to="/access"
+          active={activeItem === 'access'}
+        />}
+      </Menu>
+      }
       <ClientContext.Provider value={clientContext}>
             <Segment className="innerContainer flexCol"  basic>
             <Switch>
@@ -300,6 +315,7 @@ const updateCklist =(x)=>{
                     <Route path="/subscription">
                         <ClientSubcription data={subcrData} id={cmpny.cmpnyPK} accesslvl={profile.accesslvl} />
                     </Route>
+                    
                     {/* <Route path="/std">
                         <StandardNavigator />
                     </Route>

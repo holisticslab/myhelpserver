@@ -13,32 +13,32 @@ import {
   Table,
   Tab,
   Modal, Divider, Accordion,
-  Form, Dropdown, Card,Popup
+  Form, Dropdown, Card, Popup, Message
 } from 'semantic-ui-react';
 
 import * as moment from 'moment';
 
-import { useParams, Link, useRouteMatch,useHistory } from "react-router-dom";
+import { useParams, Link, useRouteMatch, useHistory } from "react-router-dom";
 
-import { SchemeContext,saveScheme } from './scheme';
+import { SchemeContext, saveScheme, getSchemeDtl } from './scheme';
 import { deleteUser, postUser } from '../subscription/subscription';
 import { EditableLabel, HeaderAction, PromptModal } from '../../components/simplifyUi';
 import DraggableTableRow from '../../components/DraggableTableRow';
-import {cklistType} from '../../components/constant';
+import { cklistType } from '../../components/constant';
 
 const renderHTML = (rawHTML) => React.createElement("div", { dangerouslySetInnerHTML: { __html: rawHTML } });
 
-const SchemeEditor = ({ data, onDataChange, id }) => {
+const SchemeEditor = () => {
   //   const {subcr,cmpny} = useContext(SubscriptionContext);
-  
-const history = useHistory();
 
-const { index, vid } = useParams();
+  const history = useHistory();
 
-  const { activeDraft,schmes,reloadData,clearDraft } = React.useContext(SchemeContext);
+  const { id, idx } = useParams();
+
+  const { activeDraft, schmes, reloadData, clearDraft } = React.useContext(SchemeContext);
   const [modalOpen, setModalOpen] = React.useState(false);
 
-  const [objid, setID] = React.useState(null);
+  // const [objid, setID] = React.useState(null);
   const [userid, setuserid] = React.useState(0);
   const [name, setname] = React.useState("");
   const [version, setVersion] = React.useState("1.0.0");
@@ -51,7 +51,8 @@ const { index, vid } = useParams();
   const [cklistData, setCklistData] = React.useState([]);
   const [activeIndex, setActiveIndex] = React.useState(-1);
   const [savedCklist, setSavedCklist] = React.useState({});
-  const [schmList,setschmList]= React.useState(schmes)
+  const [message, setMessage] = React.useState(null);
+  const [schmList, setschmList] = React.useState(schmes)
 
 
   let { path, url } = useRouteMatch();
@@ -60,49 +61,58 @@ const { index, vid } = useParams();
     // if (typeof(Storage) !== "undefined") {
     //   // Code for localStorage/sessionStorage.
     const bootstrapAsync = async () => {
-    // let cklistDraft = localStorage.getItem(id + "_cklistDraft");
-    setID(null);
-    if (activeDraft && index=="draft") {
-      setSavedCklist(activeDraft);
-      if (activeDraft.name) setname(activeDraft.name);
-      if (activeDraft.version) setVersion(activeDraft.version);
-      // if (activeDraft.cklistLang) setLanguage(activeDraft.cklistLang);
-      if (activeDraft.severity) setSeverities(activeDraft.severity);
-      if (activeDraft.passRules) setPassRules(activeDraft.passRules);
-      if (activeDraft.reportChart) setReportChart(activeDraft.reportChart);
-      if (activeDraft.category) setCategories(activeDraft.category);
-      if (activeDraft.data) setCklistData(activeDraft.data);
-      
-      
-      // ();
-      // ();
-      // ();
-    }
-    else if(index){
-      if(schmes[index]){
-        
-          const detail = schmes[index];
-          const checklist = detail.cklistData[vid];
+      // let cklistDraft = localStorage.getItem(id + "_cklistDraft");
+      // setID(null);
 
-        setSavedCklist(checklist);
-        if (checklist.name) setname(checklist.name);
-        if (checklist.version) setVersion(checklist.version);
+      if (activeDraft) {
+        setSavedCklist(activeDraft);
+        if (activeDraft.name) setname(activeDraft.name);
+        if (activeDraft.version) setVersion(activeDraft.version);
         // if (activeDraft.cklistLang) setLanguage(activeDraft.cklistLang);
-        if (checklist.severity) setSeverities(checklist.severity);
-        if (checklist.category) setCategories(checklist.category);
-        if (checklist.data) setCklistData(checklist.data);
-        if (checklist.passRules) setPassRules(checklist.passRules);
-        if (checklist.reportChart) setReportChart(checklist.reportChart);
-        
+        if (activeDraft.severity) setSeverities(activeDraft.severity);
+        if (activeDraft.passRules) setPassRules(activeDraft.passRules);
+        if (activeDraft.reportChart) setReportChart(activeDraft.reportChart);
+        if (activeDraft.category) setCategories(activeDraft.category);
+        if (activeDraft.data) setCklistData(activeDraft.data);
 
-        setID(index);
+
+        // ();
+        // ();
+        // ();
       }
+      else if (id) {
 
+        getSchemeDtl(id).then(x => {
+
+          if (idx === "draft") {
+            setname(x.cklistName);
+          }
+          else {
+            const checklist = x.cklistData[idx];
+
+            setSavedCklist(checklist);
+            if (checklist.name) setname(checklist.name);
+            if (checklist.version) setVersion(checklist.version);
+            // if (activeDraft.cklistLang) setLanguage(activeDraft.cklistLang);
+            if (checklist.severity) setSeverities(checklist.severity);
+            if (checklist.category) setCategories(checklist.category);
+            if (checklist.data) setCklistData(checklist.data);
+            if (checklist.passRules) setPassRules(checklist.passRules);
+            if (checklist.reportChart) setReportChart(checklist.reportChart);
+          }
+
+
+          // setID(detail.cklistPK);
+        }).catch(e => console.log(e))
+
+        // if (schmes[index]) {
+        // }
+
+      }
     }
-   }
 
-   bootstrapAsync();
-  }, [activeDraft,schmes])
+    bootstrapAsync();
+  }, [activeDraft, schmes])
 
   const updateDraftName = x => {
     setname(x);
@@ -115,11 +125,11 @@ const { index, vid } = useParams();
       cklistDraft = { name: x };
     }
     setSavedCklist(cklistDraft);
-    if(index=="draft")localStorage.setItem(id + "_cklistDraft", JSON.stringify(cklistDraft));
+    if (index == "draft") localStorage.setItem(id + "_cklistDraft", JSON.stringify(cklistDraft));
   }
   const updateDraftVersion = x => {
     setVersion(x);
-    let cklistDraft =JSON.stringify(savedCklist);
+    let cklistDraft = JSON.stringify(savedCklist);
     if (cklistDraft) {
       cklistDraft = JSON.parse(cklistDraft);
       cklistDraft.version = x;
@@ -128,7 +138,7 @@ const { index, vid } = useParams();
       cklistDraft = { version: x };
     }
     setSavedCklist(cklistDraft);
-    if(index=="draft")localStorage.setItem(id + "_cklistDraft", JSON.stringify(cklistDraft));
+    // if (index == "draft") localStorage.setItem(id + "_cklistDraft", JSON.stringify(cklistDraft));
   }
   // const updateDraftLang = x => {
   //   setLanguage(x);
@@ -143,161 +153,179 @@ const { index, vid } = useParams();
   //   setSavedCklist(cklistDraft);
   //   localStorage.setItem(id + "_cklistDraft", JSON.stringify(cklistDraft));
   // }
-  
-  
-  const updateDraftSeverity=(x)=>{
-    let cklistDraft= JSON.stringify(savedCklist);
-    if(cklistDraft){
+
+
+  const updateDraftSeverity = (x) => {
+    let cklistDraft = JSON.stringify(savedCklist);
+    if (cklistDraft) {
       cklistDraft = JSON.parse(cklistDraft);
-      cklistDraft.severity=x;
+      cklistDraft.severity = x;
     }
-    else{
-      cklistDraft={severity:x};
+    else {
+      cklistDraft = { severity: x };
     }
     setSavedCklist(cklistDraft);
-    if(index=="draft")localStorage.setItem(id+"_cklistDraft", JSON.stringify(cklistDraft));
+    // if (index == "draft") localStorage.setItem(id + "_cklistDraft", JSON.stringify(cklistDraft));
   }
 
-  const updateDraftPassRules=(x)=>{
-    let cklistDraft= JSON.stringify(savedCklist);
-    if(cklistDraft){
+  const updateDraftPassRules = (x) => {
+    let cklistDraft = JSON.stringify(savedCklist);
+    if (cklistDraft) {
       cklistDraft = JSON.parse(cklistDraft);
-      cklistDraft.passRules=x;
+      cklistDraft.passRules = x;
     }
-    else{
-      cklistDraft={passRules:x};
+    else {
+      cklistDraft = { passRules: x };
     }
     setSavedCklist(cklistDraft);
-    if(index=="draft")localStorage.setItem(id+"_cklistDraft", JSON.stringify(cklistDraft));
+    // if (index == "draft") localStorage.setItem(id + "_cklistDraft", JSON.stringify(cklistDraft));
   }
 
-  const updateDraftReportChart=(x)=>{
-    let cklistDraft= JSON.stringify(savedCklist);
-    if(cklistDraft){
+  const updateDraftReportChart = (x) => {
+    let cklistDraft = JSON.stringify(savedCklist);
+    if (cklistDraft) {
       cklistDraft = JSON.parse(cklistDraft);
-      cklistDraft.reportChart=x;
+      cklistDraft.reportChart = x;
     }
-    else{
-      cklistDraft={reportChart:x};
+    else {
+      cklistDraft = { reportChart: x };
     }
     setSavedCklist(cklistDraft);
-    if(index=="draft")localStorage.setItem(id+"_cklistDraft", JSON.stringify(cklistDraft));
-  }
-
-  
-
-  const updateDraftCategory=(x)=>{
-    let cklistDraft= JSON.stringify(savedCklist);
-    if(cklistDraft){
-      cklistDraft = JSON.parse(cklistDraft);
-      cklistDraft.category=x;
-    }
-    else{
-      cklistDraft={category:x};
-    }
-    setSavedCklist(cklistDraft);
-    if(index=="draft")localStorage.setItem(id+"_cklistDraft", JSON.stringify(cklistDraft));
-  }
-  const updateDraftData=(x)=>{
-    let cklistDraft= JSON.stringify(savedCklist);
-    if(cklistDraft){
-      cklistDraft = JSON.parse(cklistDraft);
-      cklistDraft.data=x;
-    }
-    else{
-      cklistDraft={data:x};
-    }
-    setSavedCklist(cklistDraft);
-    if(index=="draft")localStorage.setItem(id+"_cklistDraft", JSON.stringify(cklistDraft));
+    // if (index == "draft") localStorage.setItem(id + "_cklistDraft", JSON.stringify(cklistDraft));
   }
 
 
 
-  const RenderItem = ({data,index}) => {
+  const updateDraftCategory = (x) => {
+    let cklistDraft = JSON.stringify(savedCklist);
+    if (cklistDraft) {
+      cklistDraft = JSON.parse(cklistDraft);
+      cklistDraft.category = x;
+    }
+    else {
+      cklistDraft = { category: x };
+    }
+    setSavedCklist(cklistDraft);
+    // if (index == "draft") localStorage.setItem(id + "_cklistDraft", JSON.stringify(cklistDraft));
+  }
+  const updateDraftData = (x) => {
+    let cklistDraft = JSON.stringify(savedCklist);
+    if (cklistDraft) {
+      cklistDraft = JSON.parse(cklistDraft);
+      cklistDraft.data = x;
+    }
+    else {
+      cklistDraft = { data: x };
+    }
+    setSavedCklist(cklistDraft);
+    // if (index == "draft") localStorage.setItem(id + "_cklistDraft", JSON.stringify(cklistDraft));
+  }
+
+
+
+  const RenderItem = ({ data, index }) => {
     const tableItem = data.map((x, i) =>
-        <DraggableTableRow  key={i} i={i} data={cklistData[index].items} onDrop={a=>{
-          let newData = JSON.parse(JSON.stringify(cklistData));
-          newData[index].items=a;
-          setCklistData(newData);
-          updateDraftData(newData);
-        }}>
+      <DraggableTableRow key={i} i={i} data={cklistData[index].items} onDrop={a => {
+        let newData = JSON.parse(JSON.stringify(cklistData));
+        newData[index].items = a;
+        setCklistData(newData);
+        updateDraftData(newData);
+      }}>
         <Table.Cell>{i + 1}</Table.Cell>
         <Table.Cell>{renderHTML(x.text_ms)}</Table.Cell>
         <Table.Cell>{x.ctg}</Table.Cell>
-        <Table.Cell>{severities.find(z => z.id == x.severity)?severities.find(z => z.id == x.severity).name: "Undefined"}</Table.Cell>
-        <Table.Cell>{cklistType.find(z => z.value == x.type)?cklistType.find(z => z.value == x.type).text: "Undefined"}</Table.Cell>
+        <Table.Cell>{severities.find(z => z.id == x.severity) ? severities.find(z => z.id == x.severity).name : "Undefined"}</Table.Cell>
+        <Table.Cell>{cklistType.find(z => z.value == x.type) ? cklistType.find(z => z.value == x.type).text : "Undefined"}</Table.Cell>
         <Table.Cell>
-          { Array.isArray(x.info) ?<List as='ol'>
+          {Array.isArray(x.info) ? <List as='ol'>
             {
               x.info.map((y, idx) =>
                 <List.Item as='li' key={idx}>
                   {y}
-                  </List.Item>
+                </List.Item>
               )
             }
-          </List>:x.info}
+          </List> : x.info}
         </Table.Cell>
-        <Table.Cell>{x.autofailed===true?"Yes":"No"}</Table.Cell>
+        <Table.Cell>{x.autofailed === true ? "Yes" : "No"}</Table.Cell>
         <Table.Cell>
-        <PromptModal onSave={(n) => {
-                // let newData = [...cklistData];
-                // newData[i].items=[n,...x.items]
-                 let newData = JSON.parse(JSON.stringify(cklistData));
-                //  console.log(newData[index].items[i]);
-                //  console.log(n);
-                newData[index].items[i]=n;
-                setCklistData(newData);
-                updateDraftData(newData);
-                // setActiveIndex(i);
-               }}
-                title="Edit Checklist"
-                items={[
-                  { type: "hidden", name: "id", value:x.id},
-                  {  label: "Checklist", name: "text_ms", required: true , value:x.text_ms },
-                  {  label: "type", name: "type",  type: "ddl",required: true, value:x.type,
-                  options:cklistType },
-                  {  label: "Category", name: "ctg", type: "ddl", value:x.ctg,
-                  options:[{ key: -1,
-                    text: "",
-                    value: ""},...categories.map((x,i)=>{
-                  return{ key: i,
-                  text: x,
-                  value: x}
+          <PromptModal onSave={(n) => {
+            // let newData = [...cklistData];
+            // newData[i].items=[n,...x.items]
+            let newData = JSON.parse(JSON.stringify(cklistData));
+            //  console.log(newData[index].items[i]);
+            //  console.log(n);
+            newData[index].items[i] = n;
+            setCklistData(newData);
+            updateDraftData(newData);
+            // setActiveIndex(i);
+          }}
+            title="Edit Checklist"
+            items={[
+              { type: "hidden", name: "id", value: x.id },
+              { label: "Checklist", name: "text_ms", required: true, value: x.text_ms },
+              {
+                label: "type", name: "type", type: "ddl", required: true, value: x.type,
+                options: cklistType
+              },
+              {
+                label: "Category", name: "ctg", type: "ddl", value: x.ctg,
+                options: [{
+                  key: -1,
+                  text: "",
+                  value: ""
+                }, ...categories.map((x, i) => {
+                  return {
+                    key: i,
+                    text: x,
+                    value: x
+                  }
                 })]
-                    },
-                  {  label: "Severity",  name: "severity", type: "ddl", required: true,value:x.severity,
-                     options:[{ key: -1,
-                      text: "",
-                      value: ""},...severities.map((x,i)=>{
-                        return{ key: i,
-                         text: x.name,
-                         value: x.id}
-                       })]
-                  },
-                  {  label: "Auto Failed ?", name: "autofailed",  type: "ddl", value:x.autofailed,
-                  options:[{ key:0,
-                    text: "True",
-                    value: true},{ key:1,
-                      text: "False",
-                      value: false}] },
-                  {  label: "Reference", name: "info",type: "array",value:x.info },
-                  
-                ]}
-                buttonProps={{ size: "large", name: 'edit', color: "yellow" }}
-              />
-              <Icon onClick={() => {
-                
-                  let newData = JSON.parse(JSON.stringify(cklistData));
-                  //  console.log(newData[index].items[i]);
-                  //  console.log(n);
-                  newData[index].items.splice(i, 1);
-                  setCklistData(newData);
-                  updateDraftData(newData);
+              },
+              {
+                label: "Severity", name: "severity", type: "ddl", required: true, value: x.severity,
+                options: [{
+                  key: -1,
+                  text: "",
+                  value: ""
+                }, ...severities.map((x, i) => {
+                  return {
+                    key: i,
+                    text: x.name,
+                    value: x.id
+                  }
+                })]
+              },
+              {
+                label: "Auto Failed ?", name: "autofailed", type: "ddl", value: x.autofailed,
+                options: [{
+                  key: 0,
+                  text: "True",
+                  value: true
+                }, {
+                  key: 1,
+                  text: "False",
+                  value: false
+                }]
+              },
+              { label: "Reference", name: "info", type: "array", value: x.info },
+
+            ]}
+            buttonProps={{ size: "large", name: 'edit', color: "yellow" }}
+          />
+          <Icon onClick={() => {
+
+            let newData = JSON.parse(JSON.stringify(cklistData));
+            //  console.log(newData[index].items[i]);
+            //  console.log(n);
+            newData[index].items.splice(i, 1);
+            setCklistData(newData);
+            updateDraftData(newData);
           }} size="large"
-                name="trash"
-                color="red" link />
+            name="trash"
+            color="red" link />
         </Table.Cell>
-        </DraggableTableRow>
+      </DraggableTableRow>
     );
     return <Table>
       <Table.Header>
@@ -323,7 +351,7 @@ const { index, vid } = useParams();
     const listItems = data.map((x, i) =>
 
       <React.Fragment key={i}>
-<DraggableTableRow as={Accordion.Title}  key={i} i={i} data={cklistData} onDrop={a=>{
+        <DraggableTableRow as={Accordion.Title} key={i} i={i} data={cklistData} onDrop={a => {
           setCklistData(a);
           updateDraftData(a);
         }}>
@@ -334,75 +362,91 @@ const { index, vid } = useParams();
                 color="teal" link />}
             buttonRight={
               <React.Fragment>
-                  <PromptModal onSave={(x) => {
-                    let newData = JSON.parse(JSON.stringify(cklistData));
-                    newData[i].section=x.sect;
-                    setCklistData(newData);
-                    updateDraftData(newData);
-                  }}
-                    title="New Section"
-                    items={[
-                      { value: x.section, label: "Edit Section Name", name: "sect", required: true }
-                    ]}
-                    PrompButton={(props) => <Icon size="small" name="edit" {...props}  color="yellow" link />}
-                  />
-                 
-              <PromptModal onSave={(n) => {
-                let newData = [...cklistData];
-                newData[i].items=[...x.items,n]
-                setCklistData(newData);
-                updateDraftData(newData);
-                setActiveIndex(i);
-               }}
-                title="Add Checklist"
-                items={[
-                  { type: "hidden", name: "id", createID: true, },
-                  {  label: "Checklist", name: "text_ms", required: true },
-                  {  label: "type", name: "type",  type: "ddl",required: true,
-                  options:cklistType },
-                  {  label: "Category", name: "ctg", type: "ddl",
-                        options:[{ key: -1,
-                          text: "",
-                          value: ""},...categories.map((x,i)=>{
-                        return{ key: i,
-                        text: x,
-                        value: x}
+                <PromptModal onSave={(x) => {
+                  let newData = JSON.parse(JSON.stringify(cklistData));
+                  newData[i].section = x.sect;
+                  setCklistData(newData);
+                  updateDraftData(newData);
+                }}
+                  title="New Section"
+                  items={[
+                    { value: x.section, label: "Edit Section Name", name: "sect", required: true }
+                  ]}
+                  PrompButton={(props) => <Icon size="small" name="edit" {...props} color="yellow" link />}
+                />
+
+                <PromptModal onSave={(n) => {
+                  let newData = [...cklistData];
+                  newData[i].items = [...x.items, n]
+                  setCklistData(newData);
+                  updateDraftData(newData);
+                  setActiveIndex(i);
+                }}
+                  title="Add Checklist"
+                  items={[
+                    { type: "hidden", name: "id", createID: true, },
+                    { label: "Checklist", name: "text_ms", required: true },
+                    {
+                      label: "type", name: "type", type: "ddl", required: true,
+                      options: cklistType
+                    },
+                    {
+                      label: "Category", name: "ctg", type: "ddl",
+                      options: [{
+                        key: -1,
+                        text: "",
+                        value: ""
+                      }, ...categories.map((x, i) => {
+                        return {
+                          key: i,
+                          text: x,
+                          value: x
+                        }
                       })]
                     },
-                  {  label: "Severity",  name: "severity", type: "ddl", required: true,
-                     options:severities.map((x,i)=>{
-                     return{ key: i,
-                      text: x.name,
-                      value: x.id}
-                    })
-                  },
-                  {  label: "Auto Failed ?", name: "autofailed",  type: "ddl",
-                  options:[{ key:0,
-                    text: "True",
-                    value: true},{ key:1,
-                      text: "False",
-                      value: false}] },
-                  {  label: "Reference", name: "info",type: "array"}
-                ]}
-                buttonProps={{ size: "small", name: 'plus', color: "teal" }}
-              />
-              <Icon onClick={() => {
-                let newData = JSON.parse(JSON.stringify(cklistData));
-                newData.splice(i, 1);
-                setCklistData(newData);
-                updateDraftData(newData);
-        }} size="small"
-              name="trash"
-              color="red" link />
+                    {
+                      label: "Severity", name: "severity", type: "ddl", required: true,
+                      options: severities.map((x, i) => {
+                        return {
+                          key: i,
+                          text: x.name,
+                          value: x.id
+                        }
+                      })
+                    },
+                    {
+                      label: "Auto Failed ?", name: "autofailed", type: "ddl",
+                      options: [{
+                        key: 0,
+                        text: "True",
+                        value: true
+                      }, {
+                        key: 1,
+                        text: "False",
+                        value: false
+                      }]
+                    },
+                    { label: "Reference", name: "info", type: "array" }
+                  ]}
+                  buttonProps={{ size: "small", name: 'plus', color: "teal" }}
+                />
+                <Icon onClick={() => {
+                  let newData = JSON.parse(JSON.stringify(cklistData));
+                  newData.splice(i, 1);
+                  setCklistData(newData);
+                  updateDraftData(newData);
+                }} size="small"
+                  name="trash"
+                  color="red" link />
               </React.Fragment>
             }
           ><p onClick={() => setActiveIndex(activeIndex === i ? -1 : i)}>{x.section}</p>
-          
+
           </HeaderAction>
-          
+
         </DraggableTableRow>
         <Accordion.Content key={"cn" + i} active={activeIndex === i}>
-          {x.items.length >0 && <RenderItem data={x.items} index={i}/>}
+          {x.items.length > 0 && <RenderItem data={x.items} index={i} />}
         </Accordion.Content>
       </React.Fragment>
     );
@@ -414,6 +458,30 @@ const { index, vid } = useParams();
     const data = props.data;
     const listItems = data.map((x, i) =>
       <List.Item key={i}>
+        <List.Content floated='right'>
+          <Icon onClick={() => {
+            let a = [...categories];
+            a.splice(i, 1);
+            setCategories(a);
+            updateDraftCategory(a);
+          }} size="large"
+            name="trash"
+            color="red" link />
+        </List.Content>
+        <List.Content floated='right'>
+          <PromptModal onSave={(x) => {
+            let a = [...categories];
+            a[i] = x.category;
+            setCategories(a);
+            updateDraftCategory(a);
+          }}
+            title="Edit Category"
+            items={[
+              { value: x, label: "Category", name: "category", required: true }
+            ]}
+            buttonProps={{ size: "large", name: 'pencil', color: "teal" }}
+          />
+        </List.Content>
         <List.Content>
           {x}
         </List.Content>
@@ -421,7 +489,7 @@ const { index, vid } = useParams();
     );
     return <List className="" celled>{listItems}</List>
   }
-  const swap=(a, b)=> {
+  const swap = (a, b) => {
     let { items } = this.state;
     items[a] = items.splice(b, 1, items[a])[0];
     // this.setState({
@@ -432,9 +500,10 @@ const { index, vid } = useParams();
   const RenderSeverity = props => {
     const data = props.data;
     const tableItem = data.map((x, i) =>
-    <DraggableTableRow  key={x.id} i={i} data={severities} onDrop={a=>{
-      setSeverities(a);
-      updateDraftSeverity(a);}}>
+      <DraggableTableRow key={x.id} i={i} data={severities} onDrop={a => {
+        setSeverities(a);
+        updateDraftSeverity(a);
+      }}>
         <Table.Cell>{x.name}</Table.Cell>
         <Table.Cell>{x.mark}</Table.Cell>
         <Table.Cell >
@@ -453,22 +522,22 @@ const { index, vid } = useParams();
             items={[
               { value: x.id, type: "hidden", name: "id" },
               { value: x.name, label: "Name", name: "name", required: true },
-              { value: x.mark, label: "Marks", type: "number", name: "mark", required: true },
+              { value: x.mark, label: "Marks", type: "number", name: "mark" },
               { value: x.color, label: "Color", type: "color", name: "color", required: true }
             ]}
             buttonProps={{ size: "large", name: 'pencil', color: "teal" }}
           />
           <Icon onClick={() => {
-             let a = [...severities];
-             a[i] = x;
-             a.splice(i, 1);
-             setSeverities(a);
-             updateDraftSeverity(a);
+            let a = [...severities];
+            a[i] = x;
+            a.splice(i, 1);
+            setSeverities(a);
+            updateDraftSeverity(a);
           }} size="large"
-                name="trash"
-                color="red" link />
+            name="trash"
+            color="red" link />
         </Table.Cell>
-        </DraggableTableRow>
+      </DraggableTableRow>
     );
     return <Table singleLine>
       <Table.Header>
@@ -487,14 +556,15 @@ const { index, vid } = useParams();
 
   }
 
-  const RenderRules = props =>{
+  const RenderRules = props => {
     const data = props.data;
     const tableItem = data.map((x, i) =>
-    <DraggableTableRow  key={x.id} i={i} data={severities} onDrop={a=>{
-      setPassRules(a);
-      updateDraftPassRules(a);}}>
+      <DraggableTableRow key={x.id} i={i} data={severities} onDrop={a => {
+        setPassRules(a);
+        updateDraftPassRules(a);
+      }}>
         <Table.Cell>{x.name}</Table.Cell>
-        <Table.Cell>{severities.find(z => z.id == x.variable)?severities.find(z => z.id == x.variable).name:x.variable}</Table.Cell>
+        <Table.Cell>{severities.find(z => z.id == x.variable) ? severities.find(z => z.id == x.variable).name : x.variable}</Table.Cell>
         <Table.Cell>{x.condition}</Table.Cell>
         <Table.Cell>{x.value}</Table.Cell>
 
@@ -509,35 +579,41 @@ const { index, vid } = useParams();
             items={[
               { value: x.id, type: "hidden", name: "id" },
               { value: x.name, label: "Name", name: "name", required: true },
-              { value: x.variable, label: "Variable",  name: "variable", type: "ddl", required: true,
-               options:[{ key: -1,
-                text: "Mark",
-                value: "MARK"},...severities.map((x,i)=>{
-                  return{ key: i,
-                   text: `NCR: ${x.name}`,
-                   value: x.id}
-                 })]
-            },{ value: x.condition, label: "Condition",  name: "condition", type: "ddl", required: true,
-                  options:[
-                  { key: 0,text: "More Than >",value: ">"},
-                  { key: 1,text: "Less Than <",value: "<"}
+              {
+                value: x.variable, label: "Variable", name: "variable", type: "ddl", required: true,
+                options: [{
+                  key: -1,
+                  text: "Mark",
+                  value: "MARK"
+                }, ...severities.map((x, i) => {
+                  return {
+                    key: i,
+                    text: `NCR: ${x.name}`,
+                    value: x.id
+                  }
+                })]
+              }, {
+                value: x.condition, label: "Condition", name: "condition", type: "ddl", required: true,
+                options: [
+                  { key: 0, text: "More Than >", value: ">" },
+                  { key: 1, text: "Less Than <", value: "<" }
                 ]
               },
-              {value: x.value, label: "value", type: "number", name: "value", required: true }
+              { value: x.value, label: "value", type: "number", name: "value", required: true }
             ]}
             buttonProps={{ size: "large", name: 'pencil', color: "teal" }}
           />
           <Icon onClick={() => {
-             let a = [...passRules];
-             a[i] = x;
-             a.splice(i, 1);
-             setPassRules(a);
-             updateDraftPassRules(a);
+            let a = [...passRules];
+            a[i] = x;
+            a.splice(i, 1);
+            setPassRules(a);
+            updateDraftPassRules(a);
           }} size="large"
-                name="trash"
-                color="red" link />
+            name="trash"
+            color="red" link />
         </Table.Cell>
-        </DraggableTableRow>
+      </DraggableTableRow>
     );
     return <Table singleLine>
       <Table.Header>
@@ -557,56 +633,60 @@ const { index, vid } = useParams();
 
   }
 
-  const RenderReportChart=props=>{
+  const RenderReportChart = props => {
     const data = props.data;
     const tableItem = data.map((x, i) =>
-    <DraggableTableRow  key={i} i={i} data={severities} onDrop={a=>{
-      setReportChart(a);
-      updateDraftReportChart(a);}}>
+      <DraggableTableRow key={i} i={i} data={severities} onDrop={a => {
+        setReportChart(a);
+        updateDraftReportChart(a);
+      }}>
         <Table.Cell>{x.name}</Table.Cell>
         <Table.Cell>
-       <List as='ol'>
+          <List as='ol'>
             {
               x.grp.map((y, idx) =>
                 <List.Item as='li' key={idx}>
                   {y}
-                  </List.Item>
+                </List.Item>
               )
             }
           </List>
         </Table.Cell>
         <Table.Cell>
           <PromptModal onSave={(x) => {
-            let a = [...passRules];
+            let a = [...reportChart];
             a[i] = x;
-            setPassRules(a);
-            updateDraftPassRules(a);
+            setReportChart(a);
+            updateDraftReportChart(a);
           }}
-            title="Edit Severity"
+            title="Edit Chart Rules"
             items={[
               { value: x.name, label: "Chart Name", name: "name", required: true },
-              { value: x.grp, grp: "Section Group",  name: "grp", type: "ddl", required: true,multiple:true,
-              search:true,
-               options:cklistData.map((x,i)=>{
-                  return{ key: i,
-                   text: x.section,
-                   value: x.section}
-                 })
-            }
+              {
+                value: x.grp, grp: "Section Group", name: "grp", type: "ddl", required: true, multiple: true,
+                search: true,
+                options: cklistData.map((x, i) => {
+                  return {
+                    key: i,
+                    text: x.section,
+                    value: x.section
+                  }
+                })
+              }
             ]}
             buttonProps={{ size: "large", name: 'pencil', color: "teal" }}
           />
           <Icon onClick={() => {
-             let a = [...passRules];
-             a[i] = x;
-             a.splice(i, 1);
-             setPassRules(a);
-             updateDraftPassRules(a);
+            let a = [...reportChart];
+            a[i] = x;
+            a.splice(i, 1);
+            setReportChart(a);
+            updateDraftReportChart(a);
           }} size="large"
-                name="trash"
-                color="red" link />
+            name="trash"
+            color="red" link />
         </Table.Cell>
-        </DraggableTableRow>
+      </DraggableTableRow>
     );
     return <Table singleLine>
       <Table.Header>
@@ -634,35 +714,35 @@ const { index, vid } = useParams();
               buttonRight={
                 <PromptModal onSave={(x) => {
                   setSeverities([...severities, x]);
-                   updateDraftSeverity([...severities, x]);
+                  updateDraftSeverity([...severities, x]);
                 }}
                   title="Add Severity"
                   items={[
                     { value: "", type: "hidden", name: "id", createID: true, },
                     { value: "", label: "Name", name: "name", required: true },
-                    { value: "", label: "Marks", type: "number", name: "mark", required: true },
+                    { value: "", label: "Marks", type: "number", name: "mark" },
                     { value: "", label: "Color", type: "color", name: "color", required: true }
                   ]}
                   buttonProps={{ size: "small", name: 'plus', color: "teal" }}
                 />
               }
             >Severity</HeaderAction>
-            {severities.length>0 && <RenderSeverity data={severities} />}
+            {severities.length > 0 && <RenderSeverity data={severities} />}
           </Segment>
           <Segment color='green'>
             <HeaderAction onClick={() => { }} size="small" name='plus' color="teal"
               buttonRight={
-                <PromptModal onSave={(x) => {setCategories([...categories, x.category]);updateDraftCategory([...categories, x.category]);}}
+                <PromptModal onSave={(x) => { setCategories([...categories, x.category]); updateDraftCategory([...categories, x.category]); }}
                   title="Add Category"
                   items={[
-                    { value: "", label: "Category", name: "category", required: true, uppercase: true }
+                    { value: "", label: "Category", name: "category", required: true }
                   ]}
                   buttonProps={{ size: "small", name: 'plus', color: "teal" }}
                 />
               }
             >Category</HeaderAction>
-            
-            {categories.length>0 && <RenderCategory data={categories} />}
+
+            {categories.length > 0 && <RenderCategory data={categories} />}
           </Segment>
         </Segment.Group>
       ,
@@ -690,7 +770,6 @@ const { index, vid } = useParams();
       render: () =>
         <Segment.Group>
           <Segment color='green'>
-
             <HeaderAction
               buttonRight={
                 <PromptModal onSave={(x) => {
@@ -701,18 +780,24 @@ const { index, vid } = useParams();
                   items={[
                     { value: "", type: "hidden", name: "id", createID: true, },
                     { value: "", label: "Name", name: "name", required: true },
-                    {  label: "Variable",  name: "variable", type: "ddl", required: true,
-                     options:[{ key: -1,
-                      text: "Mark",
-                      value: "MARK"},...severities.map((x,i)=>{
-                        return{ key: i,
-                         text: `NCR: ${x.name}`,
-                         value: x.id}
-                       })]
-                  },{  label: "Condition",  name: "condition", type: "ddl", required: true,
-                        options:[
-                        { key: 0,text: "More Than >",value: ">"},
-                        { key: 1,text: "Less Than <",value: "<"}
+                    {
+                      label: "Variable", name: "variable", type: "ddl", required: true,
+                      options: [{
+                        key: -1,
+                        text: "Mark",
+                        value: "MARK"
+                      }, ...severities.map((x, i) => {
+                        return {
+                          key: i,
+                          text: `NCR: ${x.name}`,
+                          value: x.id
+                        }
+                      })]
+                    }, {
+                      label: "Condition", name: "condition", type: "ddl", required: true,
+                      options: [
+                        { key: 0, text: "More Than >", value: ">" },
+                        { key: 1, text: "Less Than <", value: "<" }
                       ]
                     },
                     { value: "", label: "value", type: "number", name: "value", required: true }
@@ -721,7 +806,7 @@ const { index, vid } = useParams();
                 />
               }
             >Pass Rules</HeaderAction>
-            {passRules.length>0 && <RenderRules data={passRules} />}
+            {passRules.length > 0 && <RenderRules data={passRules} />}
           </Segment>
           <Segment color='green'>
             <HeaderAction onClick={() => { }} size="small" name='plus' color="teal"
@@ -733,62 +818,92 @@ const { index, vid } = useParams();
                   title="Custom Chart"
                   items={[
                     { value: "", label: "Chart Name", name: "name", required: true },
-                    {  label: "Section Group",  name: "grp", type: "ddl", required: true,multiple:true,
-                    search:true,
-                     options:cklistData.map((x,i)=>{
-                        return{ key: i,
-                         text: x.section,
-                         value: x.section}
-                       })
-                  }
+                    {
+                      label: "Section Group", name: "grp", type: "ddl", required: true, multiple: true,
+                      search: true,
+                      options: cklistData.map((x, i) => {
+                        return {
+                          key: i,
+                          text: x.section,
+                          value: x.section
+                        }
+                      })
+                    }
                   ]}
                   buttonProps={{ size: "small", name: 'plus', color: "teal" }}
                 />
               }
-              
+
             >Report Chart</HeaderAction>
-            
-            {reportChart.length>0 && <RenderReportChart data={reportChart} />}
+
+            {reportChart.length > 0 && <RenderReportChart data={reportChart} />}
           </Segment>
         </Segment.Group>
       ,
     }
   ]
+  const promptSuccess = msg => {
+    setMessage(msg);
+    setTimeout(() => {
+      setMessage(null);
+    }, 3000);
+  }
   return <React.Fragment>
-    <Segment.Group horizontal>
-      <Segment>
-        <EditableLabel
-          fluid
-          placeholder="Checklist Title"
-          label='Checklist Name'
-          value={name}
-          onSave={updateDraftName}
-        />
-      </Segment>
-      <Segment>
-        <EditableLabel
-          fluid
-          placeholder="1.0.0"
-          label='Checklist Version'
-          icon={{ label: null }}
-          onSave={updateDraftVersion}
-          value={version}
-        />
-      </Segment>
-      <Segment >
-       
-      <Button color="teal" fluid onClick={()=>{
-         let n = Math.round(Date.now()/ 1000);
-         let newid=n.toString(36)
-         if(!savedCklist.name) savedCklist.name=name;
-         if(!savedCklist.version) savedCklist.version=version;
-         saveScheme({id:objid?objid:newid,data:savedCklist,cmpnyid:id}).then(k=>{
-          history.goBack();
-          clearDraft();
-          reloadData(k);
-      })}}>Save</Button>
-      </Segment>
-      {/* <Segment>
+
+    <Message hidden={message === null} color='green'>{message}</Message>
+    <Grid verticalAlign='middle'>
+      <Grid.Column >
+        <Button size='medium' circular icon='angle left' basic color='green' onClick={() => history.goBack()} />
+
+      </Grid.Column>
+      <Grid.Column width={15}>
+        <Segment.Group horizontal>
+          <Segment>
+            <EditableLabel
+              disabled={true}
+              fluid
+              placeholder="Checklist Title"
+              label='Checklist Name'
+              value={name}
+              onSave={updateDraftName}
+            />
+          </Segment>
+          <Segment>
+            <EditableLabel
+              fluid
+              placeholder="1.0.0"
+              label='Checklist Version'
+              icon={{ label: null }}
+              onSave={updateDraftVersion}
+              value={version}
+            />
+          </Segment>
+          <Segment >
+
+            <Button color="teal" fluid onClick={() => {
+              let n = Math.round(Date.now() / 1000);
+              let newid = n.toString(36)
+              if (!savedCklist.name) savedCklist.name = name;
+              if (!savedCklist.version) savedCklist.version = version;
+              console.log(idx);
+              saveScheme({ id, idx, data: savedCklist }).then(k => {
+                console.log(k)
+                promptSuccess("Checklist successfully save");
+                // if (typeof index === "undefined") {
+                //   schmes.push(k);
+                // } else {
+
+                //   schmes[index] = k;
+                // }
+                // reloadData(schmes);
+
+                history.replace(`${k.index}`);
+
+                clearDraft();
+              })
+            }}>Save</Button>
+          </Segment>
+          {/* <Segment>
         <EditableLabel
           fluid
           placeholder="1.0.0"
@@ -799,9 +914,12 @@ const { index, vid } = useParams();
           value={language}
         />
       </Segment> */}
-      </Segment.Group>
+        </Segment.Group>
 
-    <Tab  menu={{ pointing: true }} panes={panes} />
+      </Grid.Column>
+    </Grid>
+
+    <Tab menu={{ pointing: true }} panes={panes} />
 
   </React.Fragment>
 }

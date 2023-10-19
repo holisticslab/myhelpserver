@@ -32,9 +32,11 @@ const CompanyNavigator = () => {
 
   }, []);
 
-  const companyContext = React.useMemo(
-    () => cmpny,
-    [cmpny]
+
+
+const companyContext = React.useMemo(
+  () => ({cmpny,updList:()=>getCompany().then(x => {setcmpny(x);})}),
+  [cmpny]
 );
   return (
     <CompanyContext.Provider value={companyContext}>

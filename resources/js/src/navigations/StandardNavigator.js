@@ -46,7 +46,12 @@ const StandardNavigator = () => {
         let stdDraft = JSON.parse(JSON.stringify(std));
         stdDraft[i]=data;
         setstd(stdDraft);
-        saveStandard(data).then(x=>console.log(x)).catch(e=>console.log(e))
+      },
+      pushStd:(data)=>{
+        // console.log(data);
+        let stdDraft = JSON.parse(JSON.stringify(std));
+        stdDraft.push(data);
+        setstd(stdDraft);
       }
     }),
     [std]
@@ -59,7 +64,7 @@ const StandardNavigator = () => {
                 <Route exact path={path}>
                     <StandardList />
                 </Route>
-                <Route path={`${path}/details/:index`}>
+                <Route path={`${path}/:id`}>
                     <StandardDetails />
                 </Route>
                 

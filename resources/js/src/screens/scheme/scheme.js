@@ -13,11 +13,37 @@ export const getScheme = () => {
       reject(error);
     });
   });
+}
+export const getSchemeDtl = (id) => {
+  return new Promise( (resolve, reject)=> {
+    axios.get(`/getschemedtl/${id}`).then(({ data }) => resolve(data))
+    .catch( (error)=> {
+      sessionRedirect(error)
+      reject(error);
+    });
+  });
+}
 
-}
 export const saveScheme=(data)=>{
-  
+  return new Promise( (resolve, reject)=> {
+    axios.post('/postscheme',data).then(({ data }) => resolve(data))
+    .catch( (error)=> {
+      sessionRedirect(error);
+      reject(error);
+    });
+  });
 }
+
+export const deleteScheme=data=>{
+  return new Promise( (resolve, reject)=> {
+    axios.post('/deletescheme',data).then(({ data }) => resolve(data))
+    .catch( (error)=> {
+      sessionRedirect(error);
+      reject(error);
+    });
+  });
+}
+
 export const migrateData = () => {
   return new Promise( (resolve, reject)=> {
     axios.get('/getcklist').then(({ data }) => resolve(data))

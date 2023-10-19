@@ -16,11 +16,17 @@ class checklistController extends Controller
 {
     //
     function getAllCklist(){
-        
-        $cklist= checklist::get();
+        $cklist= checklist::select('cklistName','cklistPK as id')->get();
         foreach ($cklist as $c) {
-        $c->cklistData=json_decode($c->cklistData);
+            $c->id=encrypt($c->id);
         }
+        return response()->json($cklist);
+    }
+    function getCklist($id){
+        $id=decrypt($id);
+        $cklist= checklist::select('cklistName','cklistData','cklistLang')->where('cklistPK',$id)->first();
+        $cklist->id=encrypt($id);
+        $cklist->cklistData=json_decode($cklist->cklistData);
         return response()->json($cklist);
     }
     function savecklist(Request $request){
@@ -40,6 +46,91 @@ class checklistController extends Controller
         return response()->json($request->data["name"]);
     }
 
+    function postScheme(Request $request){
+
+        // return response()->json($request);
+        if ($request->has('id')) {
+            $id=decrypt($request->id);
+            $scheme= checklist::where("cklistPK",$id)->first();
+            $data=json_decode($scheme->cklistData);
+
+            $newCklist=(object)$request->data;
+
+            if($request->has('action') && $request->action=="rename"){
+                $scheme->cklistName=$request->name;
+                $scheme->save();
+                return response()->json(true);
+            }
+            if($request->has('idx')&& $request->idx!=="draft"){
+                $key=$request->idx;
+
+                if($request->action=="delete"){
+                    array_splice($data, $key, 1);
+                    
+                    $scheme->cklistData=json_encode($data);
+                    $scheme->save();
+                    return response()->json($data);
+                }
+                else{
+
+                     $data[$key]=(object)[
+                         'name'=>$newCklist->name,
+                         'lastUpdate'=>now()->toDateTimeString(),
+                         "version"=>$newCklist->version,
+                         "data"=>isset($newCklist->data)?$newCklist->data:[],
+                         "severity"=>isset($newCklist->severity)?$newCklist->severity:[],
+                         "category"=>isset($newCklist->category)?$newCklist->category:[],
+                         "passRules"=>isset($newCklist->passRules)?$newCklist->passRules:[],
+                         "defaultNotes"=>isset($newCklist->defaultNotes)?$newCklist->defaultNotes:[],
+                         "reportChart"=>isset($newCklist->reportChart)?$newCklist->reportChart:[]];
+                        }
+                   
+                }
+                else{
+                    //error here
+                    
+                        array_push($data,(object)[
+                            'name'=>$newCklist->name,
+                            'lastUpdate'=>now()->toDateTimeString(),
+                            "version"=>$newCklist->version,
+                            "data"=>isset($newCklist->data)?$newCklist->data:[],
+                            "severity"=>isset($newCklist->severity)?$newCklist->severity:[],
+                            "category"=>isset($newCklist->category)?$newCklist->category:[],
+                            "passRules"=>isset($newCklist->passRules)?$newCklist->passRules:[],
+                            "defaultNotes"=>isset($newCklist->defaultNotes)?$newCklist->defaultNotes:[],
+                            "reportChart"=>isset($newCklist->reportChart)?$newCklist->reportChart:[]
+                        ]);
+                }
+            $scheme->cklistData=json_encode($data);
+            $scheme->save();
+            return response()->json(['index'=>count($data)-1]);
+            }
+            else{
+                $scheme= new checklist;
+                $scheme->cklistName=$request->name;
+                $scheme->save();
+
+                $cklist= checklist::select('cklistName','cklistPK as id')->get();
+                foreach ($cklist as $c) {
+                    $c->id=encrypt($c->id);
+                }
+                return response()->json(['id'=>encrypt($scheme->cklistPK),'schm'=>$cklist]);
+            }
+        }
+
+    function deleteScheme(Request $request){
+        
+        $id=decrypt($request->id);
+        $scheme= checklist::where("cklistPK",$id)->first();
+        $scheme->delete();
+        
+        $cklist= checklist::select('cklistName','cklistPK as id')->get();
+        foreach ($cklist as $c) {
+            $c->id=encrypt($c->id);
+        }
+        return response()->json($cklist);
+
+    }
     function postCklist(Request $request){
         
         $cmpny=dechex($request->cmpnyid);
@@ -64,6 +155,7 @@ class checklistController extends Controller
                      "severity"=>isset($newCklist->severity)?$newCklist->severity:[],
                      "category"=>isset($newCklist->category)?$newCklist->category:[],
                      "passRules"=>isset($newCklist->passRules)?$newCklist->passRules:[],
+                     "defaultNotes"=>isset($newCklist->defaultNotes)?$newCklist->defaultNotes:[],
                      "reportChart"=>isset($newCklist->reportChart)?$newCklist->reportChart:[]];
             }
             

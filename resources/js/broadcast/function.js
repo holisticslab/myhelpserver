@@ -1,6 +1,10 @@
 
 import axios from 'axios';
 
+import React from 'react';
+
+export const MeetingContext = React.createContext();
+
 export const timeoutPromise = (timeout, err, promise) => {
     return new Promise(function (resolve, reject) {
       promise.then(resolve, reject);
@@ -31,10 +35,9 @@ export const timeoutPromise = (timeout, err, promise) => {
     }
   }
 
-  export const getRoles=()=>{
-    
+  export const getmeeting=(id)=>{
   return new Promise( (resolve, reject)=> {
-    axios.get('/getroles').then(({ data }) => resolve(data))
+    axios.get('/meetinginfo/'+id).then(({ data }) => resolve(data))
     .catch( (error)=> {
       sessionRedirect(error)
       reject(error);
@@ -42,6 +45,16 @@ export const timeoutPromise = (timeout, err, promise) => {
   });
   }
 
+    export const saveMeeting = (data) => {
+      return new Promise( (resolve, reject)=> {
+        axios.post('/updatemeeting',data).then(({ data }) => resolve(data))
+        .catch( (error)=> {
+          sessionRedirect(error);
+          reject(error);
+        });
+      });
+    
+    }
   
   export const toDataUrl=(src, outputFormat, size) =>{
   return new Promise( (resolve, reject)=> {
@@ -79,10 +92,4 @@ export const timeoutPromise = (timeout, err, promise) => {
   console.log(src);
   });
   
-}
-
-export const getLetterFromString = i => {
-  if (i > 25) {
-      return String.fromCharCode(65) + String.fromCharCode(39 + i);
-  } else return String.fromCharCode(65 + i);
 }

@@ -41,6 +41,7 @@ const ClientUser = ({data,onDataChange,id,accesslvl}) => {
   const [username, setusername] = React.useState("");
   const [password, setpassword] = React.useState("");
   const [password2, setpassword2] = React.useState("");
+  const [position, setPosition] = React.useState("");
   const [pwdLevel, setPwdLevel] = React.useState(null);
   const [errorMsg, setErrorMsg] = React.useState("");
   const [roles, setRoles] = React.useState([]);
@@ -116,11 +117,12 @@ const ClientUser = ({data,onDataChange,id,accesslvl}) => {
   }
 
 
-  const editForm=({name,username,id,roleFK})=>{
+  const editForm=({name,username,id,roleFK,position})=>{
     console.log(roleFK)
     setname(name);
     setuserid(id);
     setuserrole(roleFK);
+    setPosition(position);
     setusername(username);
     setpassword("default");
     setpassword2("default");
@@ -129,7 +131,7 @@ const ClientUser = ({data,onDataChange,id,accesslvl}) => {
 
   
   const submitForm=()=>{
-    const data={id:userid,name,username,cmpnyid:id,password,role:userrole};
+    const data={id:userid,name,username,cmpnyid:id,password,role:userrole,position};
 
     if(password!=password2 ){
       setErrorMsg("Password not match");
@@ -301,6 +303,13 @@ const ClientUser = ({data,onDataChange,id,accesslvl}) => {
                     onChange={(e,data)=>setuserrole(data.value)}
                     options={roles}
                   />
+            <Form.Input
+              required
+              fluid
+              label='Position'
+              onChange={e=>setPosition(e.target.value)}
+              value={position}
+            />
             </Form>
             {errorMsg &&
               <Message error

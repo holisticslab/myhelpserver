@@ -25,12 +25,17 @@
         "sass-loader": "^10.0.2"
     },
     "dependencies": {
+        "chart.js": "^3.7.1",
         "check-password-strength": "^2.0.2",
+        "crypto-es": "^1.2.7",
+        "file-saver": "^2.0.5",
         "moment": "^2.29.1",
         "pdfmake": "^0.1.71",
+        "react-chartjs-2": "^4.1.0",
         "react-device-detect": "^1.14.0",
         "react-router-dom": "^5.2.0",
         "semantic-ui-css": "^2.4.1",
-        "semantic-ui-react": "^2.0.1"
+        "semantic-ui-react": "^2.0.1",
+        "xlsx": "^0.18.5"
     }
 }

@@ -60,6 +60,9 @@ class userController extends Controller
             if($request->role){
                 $usr->roleFK=$request->role;
             }
+            if($request->position){
+                $usr->position=$request->position;
+            }
         }
 
         

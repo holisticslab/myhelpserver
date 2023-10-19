@@ -268,7 +268,7 @@ const ClientCreateChecklist = ({ data, onDataChange, id }) => {
                   { type: "hidden", name: "id", createID: true, },
                   {  label: "Checklist", name: "text_ms", required: true },
                   {  label: "type", name: "type", required: true },
-                  {  label: "Category", name: "ctg", type: "ddl", required: true,
+                  {  label: "Category", name: "ctg", type: "ddl", required: false,
                         options:categories.map((x,i)=>{
                         return{ key: i,
                         text: x,

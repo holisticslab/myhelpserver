@@ -31,7 +31,7 @@ const ClientChecklists = ({data,stock,onDataChange,onDelete,id,accesslvl}) => {
 
 const history = useHistory();
 let { path, url } = useRouteMatch();
-    const { activeDraft } = React.useContext(ClientContext);
+    const { activeDraft ,allowedSchm} = React.useContext(ClientContext);
   const [modalOpen, setModalOpen] = React.useState(false);
 
   const [objid, setID] = React.useState(null);
@@ -43,6 +43,7 @@ let { path, url } = useRouteMatch();
     const bootstrapAsync = async () => {
       console.log(activeDraft);
       console.log(data);
+      console.log(allowedSchm);
    }
 
    bootstrapAsync();
@@ -70,14 +71,19 @@ let { path, url } = useRouteMatch();
   const RenderScheme = props => {
     const data = props.data;
     const listItems =  Object.keys(data).map((x) =>
-    <List.Item key={x}>
+    {
+      if(allowedSchm){
+    if(accesslvl<3 ||(accesslvl==3 && allowedSchm.includes(x))){
+    return <List.Item key={x}>
         <List.Content  as={Link} to={`${url}/${x}`}>
         {data[x].name}
         </List.Content>
         <List.Content floated='right'>v{data[x].version}
         {accesslvl<3 && <Button onClick={()=>deleteForm(x)}  size='medium' circular  basic color='red' icon='trash alternate' />}
         </List.Content>
-      </List.Item>
+      </List.Item>}}
+
+      }
     );
 
     return <List  ordered divided>

@@ -32,8 +32,13 @@ class companyController extends Controller
     }
 
     function updCompany(Request $request){
+        if($request->cmpnyPK){
+            $cmpny= company::where('cmpnyPK',$request->cmpnyPK)->first();
+        }
+        else{
+            $cmpny = new company;
+        }
         
-        $cmpny= company::where('cmpnyPK',$request->cmpnyPK)->first();
         $cmpny->cmpnyName=$request->cmpnyName;
         $cmpny->cmpnyDetails=json_encode($request->cmpnyDetails);
         $cmpny->cmpnyLink=$request->cmpnyLink;

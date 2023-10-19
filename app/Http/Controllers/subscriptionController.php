@@ -30,8 +30,9 @@ class subscriptionController extends Controller
     function getclientdata(){
         
         $id=Auth::user()->getCompany()->cmpnyPK;
+        $rolelevel=Auth::user()->getRoleLevel();
 
-        $usr= user::select('id','name','username','roleFK','lastLogin','lastLoginIP','rolename')
+        $usr= user::select('id','name','username','roleFK','lastLogin','lastLoginIP','rolename','position')
         ->leftJoin('roles','rolePK','roleFK')
         ->where('cmpnyFK',$id)->get();
         $subcr= subscription::select('dateStart','dateEnd','subcrDetails','cmpnyFK',
@@ -42,21 +43,59 @@ class subscriptionController extends Controller
             $c->cklistData=json_decode($c->cklistData);
             }
             
-        $returnObj = (object)['isSuccess' =>false,'active_subcr'=>$subcr,'users'=>$usr,'data'=>null,'premises'=>null,'schmlist'=>null,'stockCkList'=>$cklist];
+        $returnObj = (object)['isSuccess' =>false,'allowedSchm'=>null,'active_subcr'=>$subcr,'users'=>$usr,'data'=>null,'premises'=>null,'schmlist'=>null,'stockCkList'=>$cklist];
         $id=dechex($id);
-        if(Storage::exists($id.'\data\subcr')){
-            $contents = Storage::get($id.'\data\subcr');
-            $returnObj->data=$this->unencodeMaster($contents);
-        }
+
+        $premises;
+        $schmlist;
+        
         if(Storage::exists($id.'\data\prms')){
             $contents = Storage::get($id.'\data\prms');
             $returnObj->premises=$this->unencodeMaster($contents);
+            $premises=$this->unencodeMaster($contents);
         }
         if(Storage::exists($id.'\data\schemelist')){
             $contents = Storage::get($id.'\data\schemelist');
             $returnObj->schmlist=$this->unencodeMaster($contents);
+            $schmlist=[];
         }
+        if(Storage::exists($id.'\data\subcr')){
+            $contents = Storage::get($id.'\data\subcr');
+            $returnObj->data=$this->unencodeMaster($contents);
+
+            $data=$this->unencodeMaster($contents);
+            foreach ($data as $key => $value) {
+                $value=(object)$value;
+                $idx=array_search(Auth::id(),$value->users);
+              if($idx>-1){
+                foreach ($value->cklists as $v) {
+                //     if(!is_array($v) &&  property_exists($schmlist, $v)){
+                //     if(array_search($v, array_column($returnObj->cklists, 'id'))==false){
+                //         if (property_exists($schmlist, $v)){
+                //     $schmlist->{$v}->id=$v;
+                //     array_push($returnObj->cklists,$schmlist->{$v} );}
+
+                // }}
+                array_push($schmlist,$v );
+                }
+              } 
+            }
+        }
+        $returnObj->allowedSchm=$schmlist;
         return response()->json($returnObj);
+    }
+
+    function getLatestCklist($id){
+        $userid=Auth::user()->getCompany()->cmpnyPK;
+        $userid=dechex($userid);
+
+        if(Storage::exists($userid.'\data\schemelist')){
+            $contents = Storage::get($userid.'\data\schemelist');
+            $data=$this->unencodeMaster($contents);
+            $data->{$id}->id=$id;
+            return response()->json($data->{$id});
+        }
+
     }
     function getSubscriptionData($id){
         $id=decrypt($id);
@@ -142,6 +181,7 @@ class subscriptionController extends Controller
             $data=$this->unencodeMaster($contents);
             $key=$request->id;
             // $key=array_search($request->id, array_column($data, 'id'));
+            
             if($key){
                 if($request->action=="delete"){
                     unset( $data->{$key});
@@ -154,7 +194,41 @@ class subscriptionController extends Controller
                 $keylist=array_keys(get_object_vars($data));
             $lastkey=end($keylist);
             $key=(int)substr($lastkey,1)+1;
+
+            
+
+            while (property_exists($data, 'p'.$key)) {
+                $key++;
+              }
+
             $data->{'p'.$key}=$request->data;
+            
+
+            if($cmpny==6 && Storage::exists($cmpny.'\data\subcr')){
+                
+                $newkeylist=array_keys(get_object_vars($data));
+                $newData=(object)[];
+                // return response()->json(['isSuccess' =>$data],500);
+                usort($newkeylist, fn($a, $b) => strcmp(((object)$data->{$a})->name,((object)$data->{$b})->name));
+
+                foreach ($newkeylist as $c) {
+                    $newData->{$c}=$data->{$c};
+                    }
+                    
+
+                $contents = Storage::get($cmpny.'\data\subcr');
+                $sdata=$this->unencodeMaster($contents);
+                foreach ($sdata as $key => $value) {
+                    // dd($sdata->{$key});
+                    $sdata->{$key}= (object)$sdata->{$key};
+                
+                $sdata->{$key}->premises=array_keys(get_object_vars($data));
+                }
+
+                Storage::put($cmpny.'\data\subcr', $this->encodeMaster($sdata));
+                $data=$newData;
+            }
+
             }
         }
         else{
@@ -232,11 +306,11 @@ class subscriptionController extends Controller
     function getIndSubscription(){
         $id=Auth::user()->getCompany()->cmpnyPK;
 
-
-        $subcr= subscription::select('dateStart','dateEnd')->where('cmpnyFK',$id)->where('dateStart', '<=', Carbon::now())->where('dateEnd', '>=', Carbon::now())->orderBy('dateEnd','desc')->first();
+        $subcr= subscription::select('dateStart','dateEnd')->where('cmpnyFK',$id)->orderBy('dateEnd','desc')->first();
         
         $returnObj = (object)['isSuccess' =>true,'subscription' =>$subcr];
-        if($subcr){
+
+        // if($subcr){
 
             $id=dechex($id);
             $premises;
@@ -286,7 +360,7 @@ class subscriptionController extends Controller
                 $returnObj->isSuccess=true;
             }
 
-        }
+        // }
         
        return response()->json($returnObj);
     }

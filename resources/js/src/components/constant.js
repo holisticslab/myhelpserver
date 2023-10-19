@@ -24,4 +24,15 @@ value: "TITLE"
   key: 5,
 text: "Date Input", 
 value: "DATE"
-}];
+}
+, {
+  key: 6,
+text: "Comment", 
+value: "COMMENT"
+}, 
+{
+  key: 6,
+text: "Marked Checklist", 
+value: "MARKED"
+}
+];

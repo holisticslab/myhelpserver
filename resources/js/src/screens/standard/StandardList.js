@@ -14,11 +14,12 @@ import {
 
 import {Switch,Route,Link,useRouteMatch} from "react-router-dom";
 
-import { getStandard,StandardContext } from './standard';
+import { getStandard,StandardContext,addStandard } from './standard';
+import {  PromptModal } from '../../components/simplifyUi';
 
 const StandardList = () => {
 
-  const {std} = useContext(StandardContext);
+  const {std,pushStd} = useContext(StandardContext);
   let { path, url } = useRouteMatch();
 
   const [stdlist, setStdList] = React.useState(std);
@@ -38,7 +39,7 @@ const StandardList = () => {
     console.log(props)
     const data = props.data;
     const listItems = data.map((x,i) =>
-      <List.Item key={i} as={Link} to={`${url}std/details/${i}`}>
+      <List.Item key={i} as={Link} to={`${url}std/${x.id}`}>
         <List.Content>
         <List.Header>{x.code}</List.Header>{x.name} 
         <List.Content floated='right'>{x.lang}</List.Content>
@@ -57,6 +58,9 @@ const StandardList = () => {
               </List.List>
             </List.Item> */}
     </List>
+  }
+  const submitStandard=x=>{
+    addStandard(x).then(pushStd).catch(e=>console.log(e));
   }
   return (
 
@@ -78,6 +82,15 @@ const StandardList = () => {
         <Header as='h3' floated='left'>
         Standard List
         </Header>
+        <PromptModal onSave={submitStandard}
+                title="Add Standard"
+                items={[
+                  { value: "", label: "Standard Code",type: "text", name: "code" },
+                  { value:"", label: "Standard Name",type: "text", name: "name" },
+                  { value:"", label: "Language",type: "text", name: "lang" }
+                ]}
+                PrompButton={(props) => <Button fluid basic color='green' {...props} > <Icon name='plus' />Add Standard</Button>}
+              />
       </Segment>
         {stdlist &&
           <RenderStandard data={stdlist}/>

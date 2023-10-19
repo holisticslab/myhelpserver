@@ -92,6 +92,10 @@ class authController extends Controller
     $user->save();
 
     $subcr= subscription::select('dateStart','dateEnd')->where('cmpnyFK',Auth::user()->getCompany()->cmpnyPK)->where('dateStart', '<=', Carbon::now())->where('dateEnd', '>=', Carbon::now())->orderBy('dateEnd','desc')->first();
+    if(is_null($subcr)){
+      return response()->json(['isSuccess' =>false,'message'=>"Subscription Expired"],401);
+    
+      }
     return response()->json(['isSuccess' =>true,'user' =>Auth::user(),'accesslevel'=>Auth::user()->getRoleLevel(),'cmpny'=>Auth::user()->getCompany(),'access_token' => $tokenResult,'subcr'=>$subcr]);
   
   } catch (Exception $error) {
@@ -109,7 +113,7 @@ public function mcdlogin(Request $request)
 try {
   $request->merge([
     'cmpnyFK' => 6,
-    ]);
+    ]); 
 
     $credentials = $request->only('username', 'password','cmpnyFK');
   $request->merge([
@@ -138,6 +142,10 @@ try {
   $user->save();
 
   $subcr= subscription::select('dateStart','dateEnd')->where('cmpnyFK',Auth::user()->getCompany()->cmpnyPK)->where('dateStart', '<=', Carbon::now())->where('dateEnd', '>=', Carbon::now())->orderBy('dateEnd','desc')->first();
+  if(is_null($subcr)){
+  return response()->json(['isSuccess' =>false,'message'=>"Subscription Expired"],401);
+
+  }
   return response()->json(['isSuccess' =>true,'user' =>Auth::user(),'accesslevel'=>Auth::user()->getRoleLevel(),'cmpny'=>Auth::user()->getCompany(),'access_token' => $tokenResult,'subcr'=>$subcr]);
 
 } catch (Exception $error) {
@@ -145,6 +153,37 @@ try {
     'isSuccess'=>false,
     'status_code' => 500,
     'message' => 'Error in Login',
+    'error' => $error,
+  ]);
+}
+}
+
+
+public function activeSession(Request $request)
+{
+try {
+  
+  $user = Auth::user();
+  $existtoken=$user->tokens()->first();
+
+  if($existtoken){
+      $existtoken->delete();
+  }
+  $tokenResult = $user->createToken('authToken')->plainTextToken;
+
+  $user = Auth::user();
+  $user->lastLoginIP = $request->getClientIp();
+  $user->lastLogin =  now()->toDateTimeString();
+  $user->save();
+
+  $subcr= subscription::select('dateStart','dateEnd')->where('cmpnyFK',Auth::user()->getCompany()->cmpnyPK)->where('dateStart', '<=', Carbon::now())->where('dateEnd', '>=', Carbon::now())->orderBy('dateEnd','desc')->first();
+  return response()->json(['isSuccess' =>true,'user' =>Auth::user(),'accesslevel'=>Auth::user()->getRoleLevel(),'cmpny'=>Auth::user()->getCompany(),'access_token' => $tokenResult,'subcr'=>$subcr]);
+
+} catch (Exception $error) {
+  return response()->json([
+    'isSuccess'=>false,
+    'status_code' => 500,
+    'message' => 'Session Time Out',
     'error' => $error,
   ]);
 }

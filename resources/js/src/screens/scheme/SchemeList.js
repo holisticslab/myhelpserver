@@ -12,44 +12,48 @@ import {
   Button,Dimmer,Loader
 } from 'semantic-ui-react';
 
-import {Switch,Route,Link,useRouteMatch} from "react-router-dom";
+import {Switch,Route,Link,useRouteMatch,useHistory} from "react-router-dom";
 
-import { getScheme,SchemeContext,migrateData } from './scheme';
+import { getScheme,SchemeContext,migrateData,deleteScheme,saveScheme } from './scheme';
+import {  PromptModal } from '../../components/simplifyUi';
 
 const SchemeList = () => {
 
-  const {schmes} = useContext(SchemeContext);
+  const history=useHistory();
+  const [schmes, setScheme] = React.useState(null);
   let { path, url } = useRouteMatch();
   const [isLoading, setLoading] = React.useState(false);
   const [filteredScheme, setFilteredScheme] = React.useState(schmes);
 
   React.useEffect(() => {
     const bootstrapAsync=async()=>{
-      setFilteredScheme(schmes);
+      getScheme().then(x => {
+        reloadData(x);
+      });
     }
     bootstrapAsync();
-  }, [schmes])
+  }, [])
 
-  const migrate=()=>{
-    setLoading(true);
-    migrateData().then(x=>{
-      console.log(x);
-      setLoading(false);
-    }).catch(e=>{
-      setLoading(false);
-      console.log(e);
-    })
-  }
+ const reloadData=x=>{
+   setScheme(x)
+   setFilteredScheme(x);
+ }
   const RenderScheme = props => {
-    console.log(props)
+    // console.log(props)
     const data = props.data;
     const listItems = data.map((x,i) =>
       <List.Item key={i}>
-        <List.Content  as={Link} to={`${url}/details/${i}`}>
+        <List.Content  as={Link} to={`${url}/${x.id}`}>
         {x.cklistName}
         </List.Content>
-        <List.Content floated='right'>v{x.cklistData[0].version} 
-        <Button onClick={()=>{}}  size='medium' circular  basic color='red' icon='trash alternate' />
+        <List.Content floated='right'>
+          {/* v{x.cklistData[0].version}  */}
+        <Button onClick={()=>{
+           let text;
+           if (confirm("Are you sure to delete this?") == true) {
+            deleteScheme({id:x.id}).then(x=>reloadData(x))
+           } 
+          }}  size='medium' circular  basic color='red' icon='trash alternate' />
         </List.Content>
       </List.Item>
     );
@@ -58,11 +62,13 @@ const SchemeList = () => {
         <Loader>Loading</Loader>
       </Dimmer>
       {/* <Button fluid onClick={()=>migrate()} basic color='green' > <Icon name='plus' />Migrate from QCMSv2</Button> */}
-        <List className="listScroll" celled ordered  verticalAlign='middle'>
+        <List className="clientUserTable" celled ordered  verticalAlign='middle'>
           {listItems}
         </List>
     </React.Fragment>
   }
+
+  
   return (
 
     <Transition transitionOnMount={true} animation="fade" duration={1000}>
@@ -83,6 +89,23 @@ const SchemeList = () => {
         <Header as='h3' floated='left'>
         Scheme List
         </Header>
+        <PromptModal onSave={x=>saveScheme(x).then(({schm,id})=>{
+          reloadData(schm);
+          history.push(`${url}/editor/${id}/draft`)
+        })}
+                title="Add Scheme"
+                items={[
+                  { value: "", label: "Scheme Name",type: "text", name: "name" ,required:true},
+                //   { value:"", label: "Scheme Standard",type: "ddl", name: "std", options:[{ key: -1,
+                //     text: "",
+                //     value: ""},...categories.map((x,i)=>{
+                //   return{ key: i,
+                //   text: x,
+                //   value: x}
+                // })] }
+                ]}
+                PrompButton={(props) => <Button fluid basic color='green' {...props} > <Icon name='plus' />Add Scheme</Button>}
+              />
       </Segment>
         {filteredScheme &&
           <RenderScheme data={filteredScheme}/>

@@ -25,7 +25,7 @@ const renderHTML = (rawHTML) => React.createElement("div", { dangerouslySetInner
 
 const CompanyDetails = () => {
 
-  const cmpny = useContext(CompanyContext);
+  const {cmpny} = useContext(CompanyContext);
   let { path, url } = useRouteMatch();
 
   const [users, setuser] = React.useState([]);

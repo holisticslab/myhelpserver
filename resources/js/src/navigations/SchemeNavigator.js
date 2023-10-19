@@ -15,6 +15,7 @@ import SchemeDetails from '../screens/scheme/SchemeDetails';
 import SchemeVersion from '../screens/scheme/SchemeVersion';
 import SchemeEditor from '../screens/scheme/SchemeEditor';
 import {SchemeContext, getScheme } from '../screens/scheme/scheme';
+import { getStandard } from '../screens/standard/standard';
 
 const SchemeNavigator = () => {
   
@@ -25,14 +26,15 @@ const SchemeNavigator = () => {
     
     const bootstrapAsync = async () => {
       getScheme().then(x => {
+        // console.log(x);
         setScheme(x);
       });
 
-      let cklistDraft = localStorage.getItem("general_cklistDraft");
-      if (cklistDraft) {
-        cklistDraft = JSON.parse(cklistDraft);
-        setDraft(cklistDraft);
-      }
+      // let cklistDraft = localStorage.getItem("general_cklistDraft");
+      // if (cklistDraft) {
+      //   cklistDraft = JSON.parse(cklistDraft);
+      //   setDraft(cklistDraft);
+      // }
     };
     
   React.useEffect(() => {
@@ -45,6 +47,10 @@ const SchemeNavigator = () => {
     () => ({
       schmes,activeDraft,
       reloadData:setScheme,
+      setDraft:x=>{
+        // localStorage.setItem("general_cklistDraft",JSON.stringify(x))
+        setDraft(x);
+      },
       clearDraft:()=>{localStorage.removeItem("general_cklistDraft"); setDraft(null);}
     }),
     [schmes,activeDraft]
@@ -55,14 +61,13 @@ const SchemeNavigator = () => {
                     <Route exact path={path}>
                         <SchemeList />
                     </Route>
-                    <Route path={`${path}/details/:index/version/:version`}>
+                    <Route path={`${path}/:index/version/:version`}>
                         <SchemeVersion />
                     </Route>
-                    
-                    <Route path={`${path}/details/:index/editor/:vid`}>
+                    <Route path={`${path}/editor/:id/:idx`}>
                         <SchemeEditor />
                     </Route>
-                    <Route path={`${path}/details/:index`}>
+                    <Route path={`${path}/:id`}>
                         <SchemeDetails />
                     </Route>
                     
