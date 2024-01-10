@@ -86,6 +86,7 @@ Route::get('/getdp',"migrationController@migrateDuoPharma");
 // Route::get('/getmcdPremise',"migrationController@migrateMCD");
 // Route::get('/getprofile',"userController@getuser");
 
+Route::get('/getprms',"migrationController@getprms");
 
 Route::domain('app.quikhalal.com')->group(function () {
     Route::get('/policy', function () {

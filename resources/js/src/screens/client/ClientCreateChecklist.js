@@ -72,6 +72,7 @@ const ClientCreateChecklist = ({ data, onDataChange, id }) => {
     // if (typeof(Storage) !== "undefined") {
     //   // Code for localStorage/sessionStorage.
     const bootstrapAsync = async () => {
+      console.log(schmlist[index].data)
       // let cklistDraft = localStorage.getItem(id + "_cklistDraft");
       setID(null);
       if (activeDraft && index == "draft") {

@@ -82,6 +82,39 @@ class migrationController extends Controller
         return response()->json($usr);
     }
 
+    function getprms(){
+        // Get data from company where cmpnyPK is 6, 12, 25, 26
+        $cmpnies = company::whereIn('cmpnyPK', [6, 12, 25, 26])->get();
+    
+        // Initialize an array to store data
+        $data = [];
+    
+        foreach ($cmpnies as $cmpny) {
+            // Convert the decimal value of cmpnyPK to hexadecimal
+            $id = dechex($cmpny->cmpnyPK);
+    
+            // Build the file path
+            $filePath = $id . '/data/prms';
+    
+            // Check if the file exists in storage
+            if (Storage::exists($filePath)) {
+                // Read the content of the file
+                $encodedContent = Storage::get($filePath);
+    
+                // Decode using the unencodeMaster function
+                $prms = $this->unencodeMaster($encodedContent);
+    
+                // Add data to the array
+                $data[] = [
+                    'cmpnyPK' => $cmpny->cmpnyPK,
+                    'prms' => $prms,
+                ];
+            }
+        }
+    
+        // Return the data as JSON
+        return json_encode($data);
+    }
     function updateCompany(){
         // $cmpny= company::get();
         // foreach ($cmpny as $c) {

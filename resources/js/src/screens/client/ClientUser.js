@@ -50,7 +50,7 @@ const ClientUser = ({data,onDataChange,id,accesslvl}) => {
   
   
   React.useEffect(() => {
-
+    console.log(users)
     const bootstrapAsync = async () => {
       setuserFilter(users);
       getRoles().then(x => {

@@ -79,7 +79,7 @@ const MeetingInfo = () => {
 
                     setData({info,...JSON.parse(data)});
                         history.replace(`./dashboard/${r}`)
-                    // console.log(data);
+                    console.log(data);
                 } catch (e) {
                     alert("salah kod")
                 }
