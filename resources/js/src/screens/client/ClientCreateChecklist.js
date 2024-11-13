@@ -136,6 +136,8 @@ const ClientCreateChecklist = ({ data, onDataChange, id }) => {
 
         for (let i = 1; i < rows.length; i++) {
           const row = rows[i];
+          let n = Math.round(Date.now() / 1000);
+          n+=""+i;
 
           if (isNaN(row[0])) {
 
@@ -146,7 +148,7 @@ const ClientCreateChecklist = ({ data, onDataChange, id }) => {
             currentItems = [];
           } else {
             const item = {
-              id: row[7],
+              id: (row[7] !== null && row[7] !== undefined && row[7] !== '') ? row[7] : n.toString(36),
               text_ms: row[1],
               type: row[2]?row[2].toUpperCase():"",
               ctg: row[3] || null,

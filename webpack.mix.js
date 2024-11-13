@@ -11,7 +11,8 @@ const mix = require('laravel-mix');
  |
  */
 
-mix.react('resources/js/app.js', 'public/js').react('resources/js/broadcast.js', 'public/js')
-    .postCss('resources/css/app.css', 'public/css', [
-        //
-    ]);
+ mix.js('resources/js/app.js', 'public/js').react()
+ .js('resources/js/broadcast.js', 'public/js').react()
+ .postCss('resources/css/app.css', 'public/css', [
+     //
+ ]);

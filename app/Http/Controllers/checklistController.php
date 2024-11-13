@@ -77,6 +77,8 @@ class checklistController extends Controller
                          'name'=>$newCklist->name,
                          'lastUpdate'=>now()->toDateTimeString(),
                          "version"=>$newCklist->version,
+                         "cklistCode"=>isset($newCklist->cklistCode)?$newCklist->cklistCode:"",
+                         "effDate"=>isset($newCklist->effDate)?$newCklist->effDate:"",
                          "data"=>isset($newCklist->data)?$newCklist->data:[],
                          "severity"=>isset($newCklist->severity)?$newCklist->severity:[],
                          "category"=>isset($newCklist->category)?$newCklist->category:[],

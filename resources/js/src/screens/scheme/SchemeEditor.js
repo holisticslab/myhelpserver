@@ -42,6 +42,8 @@ const SchemeEditor = () => {
   const [userid, setuserid] = React.useState(0);
   const [name, setname] = React.useState("");
   const [version, setVersion] = React.useState("1.0.0");
+  const [cklistCode, setCklistCode] = React.useState("");
+  const [effDate, setEffDate] = React.useState("");
 
   // const [language, setLanguage] = React.useState("ms");
   const [categories, setCategories] = React.useState([]);
@@ -68,6 +70,8 @@ const SchemeEditor = () => {
         setSavedCklist(activeDraft);
         if (activeDraft.name) setname(activeDraft.name);
         if (activeDraft.version) setVersion(activeDraft.version);
+        if (activeDraft.cklistCode) setCklistCode(activeDraft.cklistCode);
+        if (activeDraft.effDate) setEffDate(activeDraft.effDate);
         // if (activeDraft.cklistLang) setLanguage(activeDraft.cklistLang);
         if (activeDraft.severity) setSeverities(activeDraft.severity);
         if (activeDraft.passRules) setPassRules(activeDraft.passRules);
@@ -93,6 +97,9 @@ const SchemeEditor = () => {
             setSavedCklist(checklist);
             if (checklist.name) setname(checklist.name);
             if (checklist.version) setVersion(checklist.version);
+            
+        if (checklist.cklistCode) setCklistCode(checklist.cklistCode);
+        if (checklist.effDate) setEffDate(checklist.effDate);
             // if (activeDraft.cklistLang) setLanguage(activeDraft.cklistLang);
             if (checklist.severity) setSeverities(checklist.severity);
             if (checklist.category) setCategories(checklist.category);
@@ -136,6 +143,32 @@ const SchemeEditor = () => {
     }
     else {
       cklistDraft = { version: x };
+    }
+    setSavedCklist(cklistDraft);
+    // if (index == "draft") localStorage.setItem(id + "_cklistDraft", JSON.stringify(cklistDraft));
+  }
+  const updateDraftCklistCode = x => {
+    setCklistCode(x);
+    let cklistDraft = JSON.stringify(savedCklist);
+    if (cklistDraft) {
+      cklistDraft = JSON.parse(cklistDraft);
+      cklistDraft.cklistCode = x;
+    }
+    else {
+      cklistDraft = { cklistCode: x };
+    }
+    setSavedCklist(cklistDraft);
+    // if (index == "draft") localStorage.setItem(id + "_cklistDraft", JSON.stringify(cklistDraft));
+  }
+  const updateDraftEffDate = x => {
+    setEffDate(x);
+    let cklistDraft = JSON.stringify(savedCklist);
+    if (cklistDraft) {
+      cklistDraft = JSON.parse(cklistDraft);
+      cklistDraft.effDate = x;
+    }
+    else {
+      cklistDraft = { effDate: x };
     }
     setSavedCklist(cklistDraft);
     // if (index == "draft") localStorage.setItem(id + "_cklistDraft", JSON.stringify(cklistDraft));
@@ -872,10 +905,31 @@ const SchemeEditor = () => {
             <EditableLabel
               fluid
               placeholder="1.0.0"
-              label='Checklist Version'
+              label='Version'
               icon={{ label: null }}
               onSave={updateDraftVersion}
               value={version}
+            />
+          </Segment>
+          <Segment>
+            <EditableLabel
+              fluid
+              placeholder="HAL-12A"
+              label='Code'
+              icon={{ label: null }}
+              onSave={updateDraftCklistCode}
+              value={cklistCode}
+            />
+          </Segment>
+          <Segment>
+            <EditableLabel
+              fluid
+              placeholder="1.0.0"
+              label='Date'
+              type='date'
+              icon={{ label: null }}
+              onSave={updateDraftEffDate}
+              value={effDate}
             />
           </Segment>
           <Segment >
@@ -885,7 +939,7 @@ const SchemeEditor = () => {
               let newid = n.toString(36)
               if (!savedCklist.name) savedCklist.name = name;
               if (!savedCklist.version) savedCklist.version = version;
-              console.log(idx);
+              console.log(id,idx);
               saveScheme({ id, idx, data: savedCklist }).then(k => {
                 console.log(k)
                 promptSuccess("Checklist successfully save");
