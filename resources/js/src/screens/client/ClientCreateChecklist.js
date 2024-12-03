@@ -55,6 +55,8 @@ const ClientCreateChecklist = ({ data, onDataChange, id }) => {
   const [userid, setuserid] = React.useState(0);
   const [name, setname] = React.useState("");
   const [version, setVersion] = React.useState("1.0.0");
+  const [cklistCode, setCklistCode] = React.useState("");
+  const [effDate, setEffDate] = React.useState("");
   // const [language, setLanguage] = React.useState("ms");
   const [categories, setCategories] = React.useState([]);
   const [severities, setSeverities] = React.useState([]);
@@ -79,6 +81,8 @@ const ClientCreateChecklist = ({ data, onDataChange, id }) => {
         setSavedCklist(activeDraft);
         if (activeDraft.name) setname(activeDraft.name);
         if (activeDraft.version) setVersion(activeDraft.version);
+        if (activeDraft.cklistCode) setCklistCode(activeDraft.cklistCode);
+        if (activeDraft.effDate) setEffDate(activeDraft.effDate);
         // if (activeDraft.cklistLang) setLanguage(activeDraft.cklistLang);
         if (activeDraft.severity) setSeverities(activeDraft.severity);
         if (activeDraft.passRules) setPassRules(activeDraft.passRules);
@@ -97,6 +101,8 @@ const ClientCreateChecklist = ({ data, onDataChange, id }) => {
           setSavedCklist(schmlist[index]);
           if (schmlist[index].name) setname(schmlist[index].name);
           if (schmlist[index].version) setVersion(schmlist[index].version);
+          if (schmlist[index].cklistCode) setCklistCode(schmlist[index].cklistCode);
+          if (schmlist[index].effDate) setEffDate(schmlist[index].effDate);
           // if (activeDraft.cklistLang) setLanguage(activeDraft.cklistLang);
           if (schmlist[index].severity) setSeverities(schmlist[index].severity);
           if (schmlist[index].category) setCategories(schmlist[index].category);
@@ -417,6 +423,33 @@ const ClientCreateChecklist = ({ data, onDataChange, id }) => {
     }
     else {
       cklistDraft = { version: x };
+    }
+    setSavedCklist(cklistDraft);
+    if (index == "draft") localStorage.setItem(id + "_cklistDraft", JSON.stringify(cklistDraft));
+  }
+
+  const updateDraftCklistCode = x => {
+    setCklistCode(x);
+    let cklistDraft = JSON.stringify(savedCklist);
+    if (cklistDraft) {
+      cklistDraft = JSON.parse(cklistDraft);
+      cklistDraft.cklistCode = x;
+    }
+    else {
+      cklistDraft = { cklistCode: x };
+    }
+    setSavedCklist(cklistDraft);
+    if (index == "draft") localStorage.setItem(id + "_cklistDraft", JSON.stringify(cklistDraft));
+  }
+  const updateDraftEffDate = x => {
+    setEffDate(x);
+    let cklistDraft = JSON.stringify(savedCklist);
+    if (cklistDraft) {
+      cklistDraft = JSON.parse(cklistDraft);
+      cklistDraft.effDate = x;
+    }
+    else {
+      cklistDraft = { effDate: x };
     }
     setSavedCklist(cklistDraft);
     if (index == "draft") localStorage.setItem(id + "_cklistDraft", JSON.stringify(cklistDraft));
@@ -1184,6 +1217,27 @@ const ClientCreateChecklist = ({ data, onDataChange, id }) => {
           value={version}
         />
       </Segment>
+      <Segment>
+            <EditableLabel
+              fluid
+              placeholder="HAL-12A"
+              label='Code'
+              icon={{ label: null }}
+              onSave={updateDraftCklistCode}
+              value={cklistCode}
+            />
+          </Segment>
+          <Segment>
+            <EditableLabel
+              fluid
+              placeholder="1.0.0"
+              label='Date'
+              type='date'
+              icon={{ label: null }}
+              onSave={updateDraftEffDate}
+              value={effDate}
+            />
+          </Segment>
       <Segment >
 
         <Button color="teal" fluid onClick={() => {
