@@ -1,1 +1,64 @@
-.flexcenter{align-items:center;display:flex;flex-direction:column;height:100vh;justify-content:center}.innerContainer{display:flex;flex:1}.listScroll{height:80vh;overflow-y:auto}.header+.listScroll{height:80vh}.subcrTabPane{height:40vh;overflow-y:auto}.clientTable{height:60vh;overflow-x:hidden}.clientTable,.clientUserTable{overflow-y:auto;padding-bottom:5vh}.clientUserTable{height:75vh}.flexCol{flex-direction:column!important}.draggable{cursor:move;cursor:grab;cursor:-webkit-grab}.fullwidth{width:100%}
+.flexcenter{
+    display: flex;
+    height: 100vh;
+    
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.innerContainer{
+    
+    display: flex;
+    flex:1;
+  
+}
+.listScroll{
+    overflow-y: auto;
+    height: 80vh;
+}
+.header + .listScroll{
+    height: 80vh;
+
+}
+.subcrTabPane{
+    height: 40vh;
+    overflow-y: auto;
+}
+.clientTable{
+    height: 60vh;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding-bottom: 5vh;
+}
+.clientUserTable{
+    height: 75vh;
+    overflow-y: auto;
+    padding-bottom: 5vh;
+}
+.flexCol{
+    flex-direction: column !important;
+}
+.draggable {
+    cursor: move; /* fallback if grab cursor is unsupported */
+    cursor: grab;
+    cursor: -webkit-grab;
+  }
+  .fullwidth{
+      width:100%;
+  }
+/* .tableFixHead          { overflow-y: auto; height: 70vh; display: block; width:100%}
+.tableFixHead thead th { position: sticky; top: 0; } */
+/* .tableFixHead thead tr.green {
+    background-color: #21ba45!important;
+    color: #fff!important; 
+} */
+
+/* ol > li:before {
+    content: counter(list) ")";
+    counter-increment: list;
+    padding-right: 3em;
+    position: absolute;
+    text-align: right;
+    width: 40px;
+} */
