@@ -1,10 +1,10 @@
 import React from "react";
+import { Table } from "semantic-ui-react";
 
-// Placeholder component for DraggableTableRow
-// TODO: Implement drag and drop functionality
+// Component for DraggableTableRow with drag and drop functionality
 const DraggableTableRow = ({
     children,
-    as: Component = "div",
+    as: Component = Table.Row,
     i,
     data,
     onDrop,
@@ -22,7 +22,10 @@ const DraggableTableRow = ({
         e.preventDefault();
         const fromIndex = parseInt(e.dataTransfer.getData("text/plain"), 10);
         if (onDrop && fromIndex !== i) {
-            onDrop({ fromIndex, toIndex: i });
+            const newData = [...data];
+            const [removed] = newData.splice(fromIndex, 1);
+            newData.splice(i, 0, removed);
+            onDrop(newData);
         }
     };
 
@@ -32,6 +35,7 @@ const DraggableTableRow = ({
             onDragStart={handleDragStart}
             onDragOver={handleDragOver}
             onDrop={handleDrop}
+            style={{ cursor: "grab" }}
             {...props}
         >
             {children}
