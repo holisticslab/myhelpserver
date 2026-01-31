@@ -185,10 +185,10 @@ const history = useHistory();
 
    
     if(type ==="CHECKLIST"){
-      
+
       // let idx=severities.findIndex(({id})=>id==severity);
-      
-      resultcol=severities.find(z => z.id == severity).name;
+      const foundSeverity = severities.find(z => z.id == severity);
+      resultcol = foundSeverity ? foundSeverity.name : "";
 
     }
     else{
@@ -398,7 +398,7 @@ const history = useHistory();
                   value: x}
                 })]
                     },
-                  {  label: "Severity",  name: "severity", type: "ddl", required: true,value:x.severity,
+                  {  label: "Severity",  name: "severity", type: "ddl", value:x.severity,
                      options:[{ key: -1,
                       text: "",
                       value: ""},...severities.map((x,i)=>{
@@ -502,12 +502,14 @@ const history = useHistory();
                         value: x}
                       })]
                     },
-                  {  label: "Severity",  name: "severity", type: "ddl", required: true,
-                     options:severities.map((x,i)=>{
+                  {  label: "Severity",  name: "severity", type: "ddl",
+                     options:[{ key: -1,
+                      text: "",
+                      value: ""},...severities.map((x,i)=>{
                      return{ key: i,
                       text: x.name,
                       value: x.id}
-                    })
+                    })]
                   },
                   {  label: "Auto Failed ?", name: "autofailed",  type: "ddl",
                   options:[{ key:0,

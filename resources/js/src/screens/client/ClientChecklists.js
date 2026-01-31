@@ -123,23 +123,32 @@ const ClientChecklists = ({
 
     return (
         <React.Fragment>
-            <Button
-                as={Link}
-                onClick={e => {
-                    if (activeDraft) {
-                        setOpenConfirm(true);
-                        e.preventDefault();
-                    }
-                }}
-                to={`checklistadd`}
-                fluid
-                basic
-                color="green"
-            >
-                {" "}
-                <Icon name="plus" />
-                Add
-            </Button>
+            <Button.Group fluid>
+                <Button
+                    as={Link}
+                    onClick={e => {
+                        if (activeDraft) {
+                            setOpenConfirm(true);
+                            e.preventDefault();
+                        }
+                    }}
+                    to={`checklistadd`}
+                    basic
+                    color="green"
+                >
+                    {" "}
+                    <Icon name="plus" />
+                    Add
+                </Button>
+                <Button
+                    onClick={() => setModalOpen(true)}
+                    basic
+                    color="blue"
+                >
+                    <Icon name="upload" />
+                    Import
+                </Button>
+            </Button.Group>
             <Confirm
                 open={openConfirm}
                 content={`There are unsaved checklist name ${
