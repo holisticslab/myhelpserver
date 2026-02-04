@@ -58,11 +58,11 @@ POST /api/requestmeeting
 ## Migration Context {#migration}
 
 ```
-Current: QuikHalalv4 → myhelpserver (primary)
-Target:  QuikHalalv4 → myhalalgig-duopharma (primary) → myhelpserver (deprecated fallback)
+Status: COMPLETE - QuikHalalv4 now uses myhalalgig-duopharma exclusively
+This server: Deprecated for auth, kept for public endpoints only (theme/scheme)
 ```
 
-**During migration**: Keep both auth systems functional | Test mobile against both | Preserve public endpoints
+**Post-migration**: Public endpoints (`/api/theme`, `/api/scheme`) must remain accessible | Auth routes deprecated but preserved
 
 ## Mobile Contract {#mobile}
 
