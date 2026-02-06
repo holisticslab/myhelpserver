@@ -64,6 +64,12 @@ This server: Deprecated for auth, kept for public endpoints only (theme/scheme)
 
 **Post-migration**: Public endpoints (`/api/theme`, `/api/scheme`) must remain accessible | Auth routes deprecated but preserved
 
+## Gotchas {#gotchas}
+
+| Symptom | Cause | Fix |
+|---------|-------|-----|
+| Subscription save fails | Table has NO timestamp columns | Keep `$timestamps = false` in model |
+
 ## Mobile Contract {#mobile}
 
 ```json
