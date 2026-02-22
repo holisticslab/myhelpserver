@@ -3,7 +3,7 @@
 <!--LLM-CONTEXT
 Stack: Laravel 8.12, PHP 7.3+/8.0+, React 16.x, MySQL, Sanctum
 Domain: Simplified company/checklist for mobile auditors
-Role: Legacy API - auth migrating TO myhalalgig-duopharma
+Role: DEPRECATED — auth fully migrated to myhalalgig-duopharma. Kept alive for public endpoints only.
 -->
 
 ## Critical Rules {#critical}
@@ -27,7 +27,7 @@ GET /api/getCustomLogin/{link} → Custom branded login
 ## Commands {#commands}
 
 ```bash
-php artisan serve|test|tinker    npm run watch|hot
+php artisan tinker               # serve/watch handled by Laragon — never start manually
 php artisan cache:clear && config:clear && view:clear
 ```
 
@@ -72,10 +72,12 @@ This server: Deprecated for auth, kept for public endpoints only (theme/scheme)
 
 ## Mobile Contract {#mobile}
 
+> ⚠️ **DEPRECATED** — QuikHalalv4 no longer calls myhelpserver auth. Active contract is in `myhalalgig-duopharma/CLAUDE.md#{mobile}`.
+
 ```json
-// POST /api/login response (DO NOT CHANGE)
+// POST /api/login response (legacy — DO NOT CHANGE, kept for reference)
 {
-  "accessToken": "token_string",
+  "access_token": "token_string",
   "user": { "id", "name", "username", "roleFK" },
   "company": { "cmpnyPK", "cmpnyName" },
   "subscription": { "dateStart", "dateEnd", "subcrDetails" }
