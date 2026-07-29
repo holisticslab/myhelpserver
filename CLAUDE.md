@@ -32,12 +32,6 @@ php artisan cache:clear && config:clear && view:clear
 | Change `POST /api/login` response structure | Kept only as reference/fallback; shape must not drift even though dead |
 | Delete legacy auth routes | Keep functional as fallback per root migration policy |
 
-## Gotchas {#gotchas}
-
-| Symptom | Cause | Fix |
-|---------|-------|-----|
-| Subscription save fails | Table has NO timestamp columns | Keep `$timestamps = false` in model |
-
 ## Reference: Legacy Mobile Contract {#mobile}
 
 > ⚠️ DEAD — QuikHalalv4 no longer calls myhelpserver auth. Active contract: `myhalalgig-duopharma/CLAUDE.md#{mobile}`. Kept below only so the dead `/api/login` shape isn't accidentally changed.
@@ -53,3 +47,9 @@ php artisan cache:clear && config:clear && view:clear
 ```
 
 > 📖 Migration status, role hierarchy, and full auth architecture: root `CLAUDE.md#{migration}`. Do not duplicate that status here — check it before assuming this repo's auth is still relevant.
+
+## Gotchas {#gotchas}
+
+| Symptom | Cause | Fix |
+|---------|-------|-----|
+| Subscription save fails | Table has NO timestamp columns | Keep `$timestamps = false` in model |
